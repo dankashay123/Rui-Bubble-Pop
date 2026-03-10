@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Bubble Smash">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Bubble Smash</title>
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0; padding: 0;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: none;
+    pointer-events: none;
+  }
+
+  html, body {
+    width: 100%; height: 100%;
+    overflow: hidden;
+    position: fixed;
+    top: 0; left: 0;
+  }
+
+  body {
+    background: #ffb3d9;
+    touch-action: none;
+    overscroll-behavior: none;
+  }
+
+  #bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background: linear-gradient(
+      135deg,
+      #ffb3d9 0%,
+      #b3d9ff 20%,
+      #fff9b3 40%,
+      #b3ffda 60%,
+      #e8b3ff 80%,
+      #ffb3d9 100%
+    );
+    background-size: 400% 400%;
+    animation: bgShift 8s ease infinite;
+    pointer-events: none;
+  }
+
+  @keyframes bgShift {
+    0%   { background-position: 0% 50%; }
+    25%  { background-position: 100% 0%; }
+    50%  { background-position: 100% 100%; }
+    75%  { background-position: 0% 100%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  /* ── Header Bar ── */
+  #header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: env(safe-area-inset-top, 12px) 16px 10px;
+    background: rgba(255,255,255,0.28);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 2px solid rgba(255,255,255,0.45);
+    flex-wrap: nowrap;
+  }
+
+  #header-title {
+    font-family: 'Fredoka One', 'Comic Sans MS', cursive;
+    font-size: clamp(18px, 5.5vw, 32px);
+    color: #ff3d8a;
+    text-shadow:
+      -2px -2px 0 rgba(255,255,255,0.9),
+       2px -2px 0 rgba(255,255,255,0.9),
+      -2px  2px 0 rgba(255,255,255,0.9),
+       2px  2px 0 rgba(255,255,255,0.9),
+       0 3px 10px rgba(255,61,138,0.3);
+    white-space: nowrap;
+    line-height: 1.1;
+    letter-spacing: 0.5px;
+  }
+
+  #score-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.7);
+    border: 2.5px solid rgba(255,61,138,0.35);
+    border-radius: 999px;
+    padding: 4px 14px 4px 10px;
+    box-shadow: 0 2px 12px rgba(255,61,138,0.18);
+    flex-shrink: 0;
+  }
+
+  #score-bubble-icon {
+    font-size: clamp(18px, 4.5vw, 26px);
+    line-height: 1;
+  }
+
+  #score-number {
+    font-family: 'Fredoka One', 'Comic Sans MS', cursive;
+    font-size: clamp(22px, 6vw, 36px);
+    color: #7B2FBE;
+    text-shadow: 0 2px 6px rgba(123,47,190,0.2);
+    line-height: 1;
+    min-width: 2ch;
+    text-align: left;
+    transition: transform 0.08s ease;
+  }
+
+  #score-number.bump {
+    animation: scoreBump 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
+  }
+
+  @keyframes scoreBump {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.55) rotate(-8deg); }
+    70%  { transform: scale(0.9) rotate(4deg); }
+    100% { transform: scale(1) rotate(0deg); }
+  }
+
+  /* ── Stage ── */
+  #stage {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: all;
+    touch-action: none;
+  }
+
+  /* ── Bubble ── */
+  .bubble {
+    position: absolute;
+    border-radius: 50%;
+    pointer-events: all;
+    cursor: pointer;
+    z-index: 10;
+    will-change: transform, opacity;
+  }
+
+  .bubble::before {
+    content: '';
+    position: absolute;
+    top: 12%; left: 20%;
+    width: 30%; height: 20%;
+    background: rgba(255,255,255,0.65);
+    border-radius: 50%;
+    transform: rotate(-30deg);
+    pointer-events: none;
+  }
+
+  .bubble::after {
+    content: '';
+    position: absolute;
+    top: 20%; left: 55%;
+    width: 12%; height: 10%;
+    background: rgba(255,255,255,0.45);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+
+  @keyframes bubbleSpawn {
+    0%   { transform: scale(0) rotate(-10deg); opacity: 0; }
+    60%  { transform: scale(1.2) rotate(5deg);  opacity: 1; }
+    100% { transform: scale(1)   rotate(0deg);  opacity: 1; }
+  }
+
+  @keyframes bubblePop {
+    0%   { transform: scale(1);   opacity: 1; }
+    40%  { transform: scale(1.4); opacity: 0.8; }
+    100% { transform: scale(0);   opacity: 0; }
+  }
+
+  /* ── Word Label ── */
+  .word-label {
+    position: absolute;
+    font-size: clamp(28px, 8vw, 52px);
+    font-weight: 900;
+    letter-spacing: 1px;
+    pointer-events: none;
+    z-index: 20;
+    white-space: nowrap;
+    will-change: transform, opacity;
+    text-shadow:
+      -3px -3px 0 rgba(0,0,0,0.25),
+       3px -3px 0 rgba(0,0,0,0.25),
+      -3px  3px 0 rgba(0,0,0,0.25),
+       3px  3px 0 rgba(0,0,0,0.25),
+       0 4px 8px rgba(0,0,0,0.2);
+    -webkit-text-stroke: 3px rgba(0,0,0,0.18);
+    font-family: 'Fredoka One', 'Nunito', 'Comic Sans MS', cursive;
+  }
+
+  @keyframes wordPop {
+    0%   { transform: translate(-50%,-50%) scale(0)   rotate(var(--tilt)); opacity: 0; }
+    50%  { transform: translate(-50%,-50%) scale(1.3) rotate(var(--tilt)); opacity: 1; }
+    70%  { transform: translate(-50%,-50%) scale(0.9) rotate(var(--tilt)); opacity: 1; }
+    85%  { transform: translate(-50%,-50%) scale(1.1) rotate(var(--tilt)); opacity: 1; }
+    100% { transform: translate(-50%,-50%) scale(1)   rotate(var(--tilt)); opacity: 1; }
+  }
+
+  @keyframes wordFade {
+    0%   { opacity: 1; transform: translate(-50%,-60%) scale(1)   rotate(var(--tilt)); }
+    100% { opacity: 0; transform: translate(-50%,-90%) scale(0.8) rotate(var(--tilt)); }
+  }
+
+  /* ── Emoji Particles ── */
+  .emoji-particle {
+    position: absolute;
+    font-size: clamp(22px, 6vw, 42px);
+    pointer-events: none;
+    z-index: 30;
+    will-change: transform, opacity;
+    line-height: 1;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Phase 1: burst outward, stay visible */
+  @keyframes particleBurst {
+    0%   { opacity: 1; transform: translate(-50%,-50%) scale(0.4) rotate(0deg); }
+    100% { opacity: 1; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1) rotate(var(--rot-half)); }
+  }
+
+  /* Phase 2: hang in air then fade */
+  @keyframes particleFade {
+    0%   { opacity: 1; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1.1) rotate(var(--rot-half)); }
+    60%  { opacity: 1; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) - 18px)) scale(1.05) rotate(var(--rot-half)); }
+    100% { opacity: 0; transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy) - 30px)) scale(0.5) rotate(var(--rot)); }
+  }
+
+  /* ── Peeking Animals ── */
+  .peek-animal {
+    position: fixed;
+    font-size: clamp(80px, 22vw, 130px);
+    line-height: 1;
+    pointer-events: none;
+    z-index: 50;
+    will-change: transform;
+    filter: drop-shadow(0 6px 18px rgba(0,0,0,0.22));
+  }
+
+  /* Peek from bottom edge */
+  @keyframes peekBottom {
+    0%   { transform: translateY(100%) scale(0.7); }
+    18%  { transform: translateY(12%) scale(1.08); }
+    25%  { transform: translateY(18%) scale(1.0); }
+    75%  { transform: translateY(18%) scale(1.0); }
+    100% { transform: translateY(105%) scale(0.8); }
+  }
+
+  /* Peek from top edge */
+  @keyframes peekTop {
+    0%   { transform: translateY(-100%) scale(0.7) rotate(180deg); }
+    18%  { transform: translateY(-12%) scale(1.08) rotate(180deg); }
+    25%  { transform: translateY(-18%) scale(1.0) rotate(180deg); }
+    75%  { transform: translateY(-18%) scale(1.0) rotate(180deg); }
+    100% { transform: translateY(-105%) scale(0.8) rotate(180deg); }
+  }
+
+  /* Peek from left edge */
+  @keyframes peekLeft {
+    0%   { transform: translateX(-100%) scale(0.7); }
+    18%  { transform: translateX(-8%) scale(1.08); }
+    25%  { transform: translateX(-14%) scale(1.0); }
+    75%  { transform: translateX(-14%) scale(1.0); }
+    100% { transform: translateX(-105%) scale(0.8); }
+  }
+
+  /* Peek from right edge */
+  @keyframes peekRight {
+    0%   { transform: translateX(100%) scale(0.7); }
+    18%  { transform: translateX(8%) scale(1.08); }
+    25%  { transform: translateX(14%) scale(1.0); }
+    75%  { transform: translateX(14%) scale(1.0); }
+    100% { transform: translateX(105%) scale(0.8); }
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@900&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div id="bg"></div>
+<div id="stage"></div>
+
+<!-- Header: always on top, non-interactive -->
+<div id="header">
+  <div id="header-title">Bubble, Bubble, Bubble… POP!</div>
+  <div id="score-badge">
+    <span id="score-bubble-icon">🔵</span>
+    <span id="score-number">0</span>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  const WORDS        = ['Mama','Papa','Rui','Roxy','Rio','Kitty','Moo','Hoot Hoot','Baa Baa','Bubble','Hi!','Hey!'];
+  const EMOJIS       = ['✨','🫧','💥','🎈','⭐','🌟','🎉','🌈','💫','🎊','🐴','🐑','🐶','🐱','🦉','🐮'];
+  const BUBBLE_COLORS = [
+    ['rgba(255,150,180,0.55)','rgba(255,180,200,0.3)','#ff96b4'],
+    ['rgba(150,200,255,0.55)','rgba(180,220,255,0.3)','#96c8ff'],
+    ['rgba(180,255,160,0.55)','rgba(210,255,190,0.3)','#b4ffa0'],
+    ['rgba(255,220,120,0.55)','rgba(255,240,160,0.3)','#ffdc78'],
+    ['rgba(220,160,255,0.55)','rgba(240,190,255,0.3)','#dca0ff'],
+    ['rgba(160,240,220,0.55)','rgba(190,255,240,0.3)','#a0f0dc'],
+  ];
+  const WORD_COLORS          = ['#FF4E91','#FF8C00','#00B4D8','#06D6A0','#7B2FBE','#FF006E','#FB5607','#3A86FF'];
+  const SWIPE_WORD_INTERVAL_PX = 120;
+  const PARTICLE_COUNT         = 10;   // slightly more particles
+  const MAX_BUBBLES            = 60;
+
+  const stage       = document.getElementById('stage');
+  const scoreEl     = document.getElementById('score-number');
+  const activeElements = new Set();
+  let bubbleCount   = 0;
+  let popScore      = 0;
+
+  // ── Score ──
+  function incrementScore() {
+    popScore++;
+    scoreEl.textContent = popScore;
+    scoreEl.classList.remove('bump');
+    // Force reflow so animation restarts on rapid pops
+    void scoreEl.offsetWidth;
+    scoreEl.classList.add('bump');
+  }
+
+  // ── Audio ──
+  let audioCtx = null;
+  function getAudioCtx() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return audioCtx;
+  }
+
+  function playPop(x) {
+    try {
+      const ctx = getAudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const now = ctx.currentTime;
+      const pan = ctx.createStereoPanner ? ctx.createStereoPanner() : null;
+      osc.connect(gain);
+      if (pan) { gain.connect(pan); pan.connect(ctx.destination); pan.pan.value = (x / window.innerWidth) * 2 - 1; }
+      else gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(520 + Math.random() * 200, now);
+      osc.frequency.exponentialRampToValueAtTime(180, now + 0.12);
+      gain.gain.setValueAtTime(0.35, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+      osc.start(now); osc.stop(now + 0.15);
+    } catch(e) {}
+  }
+
+  function playSpawn() {
+    try {
+      const ctx = getAudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const now = ctx.currentTime;
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(300, now);
+      osc.frequency.exponentialRampToValueAtTime(550, now + 0.08);
+      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+      osc.start(now); osc.stop(now + 0.1);
+    } catch(e) {}
+  }
+
+  function playWordPop() {
+    try {
+      const ctx = getAudioCtx();
+      const notes = [523, 659, 784, 880, 1047];
+      const note = notes[Math.floor(Math.random() * notes.length)];
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      const now = ctx.currentTime;
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(note, now);
+      osc.frequency.setValueAtTime(note * 1.5, now + 0.05);
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+      osc.start(now); osc.stop(now + 0.25);
+    } catch(e) {}
+  }
+
+  // ── Bubble Factory ──
+  function spawnBubble(x, y) {
+    if (bubbleCount >= MAX_BUBBLES) return;
+
+    const colorSet      = BUBBLE_COLORS[Math.floor(Math.random() * BUBBLE_COLORS.length)];
+    const size          = 45 + Math.random() * 85;
+    const el            = document.createElement('div');
+    el.className        = 'bubble';
+    const floatDuration = 8000 + Math.random() * 7000;
+    const wobbleFreq    = 0.6 + Math.random() * 0.8;
+    const wobbleAmp     = 20 + Math.random() * 30;
+    const originX       = x - size / 2;
+    const originY       = y - size / 2;
+    const totalRise     = window.innerHeight * 1.25;
+    let   popped        = false;
+    let   rafId         = null;
+
+    el.style.cssText = `
+      width:${size}px; height:${size}px;
+      left:${originX}px; top:${originY}px;
+      background: radial-gradient(circle at 35% 35%, ${colorSet[1]}, ${colorSet[0]});
+      border: 2.5px solid ${colorSet[2]};
+      box-shadow: inset 0 0 ${size*0.3}px rgba(255,255,255,0.4), 0 4px 16px rgba(0,0,0,0.12);
+      opacity: 0;
+      animation: bubbleSpawn 0.28s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    `;
+
+    function doPopBubble(cx, cy) {
+      if (popped) return;
+      popped = true;
+      if (rafId) cancelAnimationFrame(rafId);
+      clearTimeout(el._gcTimer);
+      playPop(cx);
+      spawnParticles(cx, cy);
+      incrementScore();
+      el.style.animation = 'bubblePop 0.18s ease-out forwards';
+      setTimeout(() => { destroyElement(el); bubbleCount = Math.max(0, bubbleCount - 1); }, 200);
+    }
+
+    el.addEventListener('touchstart', function(e) {
+      e.stopPropagation();
+      const t = e.changedTouches[0];
+      doPopBubble(t.clientX, t.clientY);
+    }, { passive: false });
+
+    el.addEventListener('mousedown', function(e) {
+      e.stopPropagation();
+      doPopBubble(e.clientX, e.clientY);
+    });
+
+    stage.appendChild(el);
+    activeElements.add(el);
+    bubbleCount++;
+    playSpawn();
+
+    setTimeout(function startFloat() {
+      if (popped || !el.parentNode) return;
+      const floatStart = performance.now();
+
+      function tick(now) {
+        if (popped || !el.parentNode) return;
+        const elapsed  = now - floatStart;
+        const progress = Math.min(elapsed / floatDuration, 1);
+        const currentY = originY - totalRise * progress;
+        const wobbleX  = originX + Math.sin(elapsed * 0.001 * wobbleFreq * Math.PI * 2) * wobbleAmp;
+        const opacity  = progress > 0.75 ? Math.max(0, 1 - (progress - 0.75) / 0.25) : 1;
+
+        el.style.top     = currentY + 'px';
+        el.style.left    = wobbleX  + 'px';
+        el.style.opacity = opacity;
+
+        if (progress >= 1) {
+          destroyElement(el);
+          bubbleCount = Math.max(0, bubbleCount - 1);
+          return;
+        }
+        rafId = requestAnimationFrame(tick);
+      }
+      rafId = requestAnimationFrame(tick);
+    }, 300);
+
+    el._gcTimer = setTimeout(() => {
+      if (!popped) { destroyElement(el); bubbleCount = Math.max(0, bubbleCount - 1); }
+    }, floatDuration + 1500);
+  }
+
+  // ── Particle Explosion — two-phase: burst → hang → fade ──
+  function spawnParticles(cx, cy) {
+    for (let i = 0; i < PARTICLE_COUNT; i++) {
+      const angle    = (i / PARTICLE_COUNT) * Math.PI * 2 + (Math.random() - 0.5) * 0.7;
+      const dist     = 75 + Math.random() * 130;
+      const dx       = Math.cos(angle) * dist;
+      const dy       = Math.sin(angle) * dist;
+      const rotFull  = (Math.random() - 0.5) * 600;
+      const rotHalf  = rotFull * 0.5;
+      const emoji    = EMOJIS[Math.floor(Math.random() * EMOJIS.length)];
+
+      // Timings — longer overall lifetime
+      const burstDur = 0.28 + Math.random() * 0.12;  // 0.28–0.40s outward burst
+      const fadeDur  = 0.9  + Math.random() * 0.5;   // 0.9–1.4s hang + fade
+      const totalMs  = (burstDur + fadeDur) * 1000;
+
+      const el = document.createElement('div');
+      el.className = 'emoji-particle';
+      el.textContent = emoji;
+      el.style.cssText = `
+        left:${cx}px; top:${cy}px;
+        --dx:${dx}px; --dy:${dy}px;
+        --rot:${rotFull}deg; --rot-half:${rotHalf}deg;
+        animation: particleBurst ${burstDur}s cubic-bezier(0.2,0.8,0.4,1) forwards;
+      `;
+
+      stage.appendChild(el);
+      activeElements.add(el);
+
+      // After burst completes, switch to fade phase
+      const switchTimer = setTimeout(() => {
+        if (!el.parentNode) return;
+        el.style.animation = `particleFade ${fadeDur}s ease-out forwards`;
+        el._gcTimer = setTimeout(() => destroyElement(el), fadeDur * 1000 + 60);
+      }, burstDur * 1000);
+
+      el._gcTimer = setTimeout(() => destroyElement(el), totalMs + 200);
+      el._switchTimer = switchTimer;
+    }
+  }
+
+  // ── Word Label ──
+  function spawnWord(x, y) {
+    const word    = WORDS[Math.floor(Math.random() * WORDS.length)];
+    const color   = WORD_COLORS[Math.floor(Math.random() * WORD_COLORS.length)];
+    const tilt    = (Math.random() - 0.5) * 22;
+    const popDur  = 0.35;
+    const holdDur = 1.1;
+    const fadeDur = 0.5;
+    const totalMs = (popDur + holdDur + fadeDur + 0.1) * 1000;
+
+    const el = document.createElement('div');
+    el.className = 'word-label';
+    el.textContent = word;
+    el.style.cssText = `
+      left:${x}px; top:${y}px; color:${color};
+      --tilt:${tilt}deg;
+      animation: wordPop ${popDur}s cubic-bezier(0.34,1.56,0.64,1) forwards;
+    `;
+    stage.appendChild(el);
+    activeElements.add(el);
+    playWordPop();
+
+    for (let i = 0; i < 2; i++) {
+      spawnBubble(x + (Math.random()-0.5)*80, y + (Math.random()-0.5)*80);
+    }
+
+    setTimeout(() => {
+      if (!el.parentNode) return;
+      el.style.animation = `wordFade ${fadeDur}s ease-out forwards`;
+      setTimeout(() => destroyElement(el), fadeDur * 1000 + 60);
+    }, (popDur + holdDur) * 1000);
+
+    el._gcTimer = setTimeout(() => destroyElement(el), totalMs);
+  }
+
+  // ── Garbage Collection ──
+  function destroyElement(el) {
+    if (!el) return;
+    clearTimeout(el._gcTimer);
+    clearTimeout(el._switchTimer);
+    if (el.parentNode) el.parentNode.removeChild(el);
+    activeElements.delete(el);
+  }
+
+  // ── Input Handling ──
+  const swipeTracks = new Map();
+
+  function handleTouchStart(e) {
+    e.preventDefault();
+    getAudioCtx();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const t = e.changedTouches[i];
+      swipeTracks.set(t.identifier, { lastWordX: t.clientX, lastWordY: t.clientY });
+      spawnBubble(t.clientX, t.clientY);
+    }
+  }
+
+  function handleTouchMove(e) {
+    e.preventDefault();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      const t     = e.changedTouches[i];
+      const track = swipeTracks.get(t.identifier);
+      if (!track) continue;
+      const dx   = t.clientX - track.lastWordX;
+      const dy   = t.clientY - track.lastWordY;
+      if (Math.sqrt(dx*dx + dy*dy) >= SWIPE_WORD_INTERVAL_PX) {
+        spawnWord(t.clientX, t.clientY);
+        track.lastWordX = t.clientX;
+        track.lastWordY = t.clientY;
+      }
+    }
+  }
+
+  function handleTouchEnd(e) {
+    e.preventDefault();
+    for (let i = 0; i < e.changedTouches.length; i++) {
+      swipeTracks.delete(e.changedTouches[i].identifier);
+    }
+  }
+
+  let mouseDown  = false;
+  let mouseTrack = { lastWordX: 0, lastWordY: 0 };
+
+  stage.addEventListener('touchstart',  handleTouchStart,  { passive: false, capture: true });
+  stage.addEventListener('touchmove',   handleTouchMove,   { passive: false, capture: true });
+  stage.addEventListener('touchend',    handleTouchEnd,    { passive: false, capture: true });
+  stage.addEventListener('touchcancel', handleTouchEnd,    { passive: false, capture: true });
+
+  stage.addEventListener('mousedown', e => {
+    mouseDown = true;
+    mouseTrack = { lastWordX: e.clientX, lastWordY: e.clientY };
+    spawnBubble(e.clientX, e.clientY);
+    getAudioCtx();
+  });
+  window.addEventListener('mousemove', e => {
+    if (!mouseDown) return;
+    const dx = e.clientX - mouseTrack.lastWordX;
+    const dy = e.clientY - mouseTrack.lastWordY;
+    if (Math.sqrt(dx*dx + dy*dy) >= SWIPE_WORD_INTERVAL_PX) {
+      spawnWord(e.clientX, e.clientY);
+      mouseTrack.lastWordX = e.clientX;
+      mouseTrack.lastWordY = e.clientY;
+    }
+  });
+  window.addEventListener('mouseup', () => mouseDown = false);
+
+  // ── Hard-block all browser default gestures ──
+  document.addEventListener('touchstart',    e => e.preventDefault(), { passive: false });
+  document.addEventListener('touchmove',     e => e.preventDefault(), { passive: false });
+  document.addEventListener('touchend',      e => e.preventDefault(), { passive: false });
+  document.addEventListener('gesturestart',  e => e.preventDefault(), { passive: false });
+  document.addEventListener('gesturechange', e => e.preventDefault(), { passive: false });
+  document.addEventListener('gestureend',    e => e.preventDefault(), { passive: false });
+  document.addEventListener('contextmenu',   e => e.preventDefault());
+  document.addEventListener('selectstart',   e => e.preventDefault());
+  document.addEventListener('dragstart',     e => e.preventDefault());
+
+  let lastTap = 0;
+  document.addEventListener('touchend', function(e) {
+    const now = Date.now();
+    if (now - lastTap < 300) e.preventDefault();
+    lastTap = now;
+  }, { passive: false });
+
+  // ── Idle ambient bubbles ──
+  let idleTimer = null;
+  function resetIdle() {
+    clearTimeout(idleTimer);
+    idleTimer = setTimeout(ambientTick, 2500);
+  }
+  function ambientTick() {
+    if (bubbleCount < 10) {
+      const x = Math.random() * window.innerWidth;
+      const y = window.innerHeight * 0.65 + Math.random() * window.innerHeight * 0.35;
+      spawnBubble(x, y);
+    }
+    idleTimer = setTimeout(ambientTick, 1200 + Math.random() * 2000);
+  }
+  stage.addEventListener('touchstart', resetIdle, { passive: true });
+  stage.addEventListener('mousedown',  resetIdle);
+  resetIdle();
+
+
+  // ── Peeking Animals ──
+  const PEEK_ANIMALS = ['🦉','🐮','🐴','🐱'];
+
+  function spawnPeekAnimal() {
+    const animal = PEEK_ANIMALS[Math.floor(Math.random() * PEEK_ANIMALS.length)];
+    const edge   = ['bottom','left','right'][Math.floor(Math.random() * 4)];
+    const el     = document.createElement('div');
+    el.className = 'peek-animal';
+    el.textContent = animal;
+
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    const duration = 3.5; // seconds total (peek in, hold, peek out)
+
+    if (edge === 'bottom') {
+      el.style.left   = (20 + Math.random() * (W - 160)) + 'px';
+      el.style.bottom = '0px';
+      el.style.animation = `peekBottom ${duration}s cubic-bezier(0.34,1.2,0.64,1) forwards`;
+    } else if (edge === 'top') {
+      el.style.left   = (20 + Math.random() * (W - 160)) + 'px';
+      el.style.top    = '0px';
+      el.style.animation = `peekTop ${duration}s cubic-bezier(0.34,1.2,0.64,1) forwards`;
+    } else if (edge === 'left') {
+      el.style.left   = '0px';
+      el.style.top    = (80 + Math.random() * (H - 240)) + 'px';
+      el.style.animation = `peekLeft ${duration}s cubic-bezier(0.34,1.2,0.64,1) forwards`;
+    } else {
+      el.style.right  = '0px';
+      el.style.top    = (80 + Math.random() * (H - 240)) + 'px';
+      el.style.animation = `peekRight ${duration}s cubic-bezier(0.34,1.2,0.64,1) forwards`;
+    }
+
+    document.body.appendChild(el);
+    setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, duration * 1000 + 100);
+  }
+
+  // First peek after 10s, then every 10s
+  setTimeout(function peekLoop() {
+    spawnPeekAnimal();
+    setTimeout(peekLoop, 10000);
+  }, 10000);
+
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+</script>
+</body>
+</html>
