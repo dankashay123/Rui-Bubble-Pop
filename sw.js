@@ -1,4 +1,4 @@
-const CACHE = 'bubble-smash-v1';
+const CACHE = 'bubble-smash-v2';
 const ASSETS = [
   '/Rui-Bubble-Pop/index.html',
   '/Rui-Bubble-Pop/manifest.json',
