@@ -1,79 +1,50 @@
-# 🫧 Bubble Smash
+# 🫧 Rui's Reef
 
-A toddler-proof bubble-popping app built for iPhone. Tap bubbles to pop them, swipe to spawn words, watch animals peek in from the edges.
+A toddler-proof underwater play-and-learn app built for iPhone. Pop bubbles in the
+open reef, or drop into short guided games for colors, shapes, and counting.
+
+## Modes
+
+- **Free Play** — tap to pop bubbles, swipe to spawn words along the path, watch
+  creatures swim through
+- **Colors** — pick the orb that matches the spoken/shown color
+- **Shapes** — same, for shapes
+- **Counting** — count the objects on screen and tap the answer
 
 ## Features
 
-- Multi-touch bubble spawning — slap with four fingers, four bubbles appear
-- Bubble popping with emoji explosions (animals included)
-- Swipe to spawn vocabulary words along the path
-- Animated gradient background
-- Peeking animals (🦉🐮🐴🐱) from screen edges every 10 seconds
-- Pop counter with bounce animation
+- Multi-touch bubble spawning — four fingers, four bubbles
+- Animated water canvas with kelp, light shafts, and drifting swimmers
+- Spoken prompts and audio feedback
+- Milestone and celebration moments between rounds
+- Pop counter and per-game score
 - Full toddler-proofing: no zoom, no scroll, no context menus, no text selection
 - Works offline via service worker
 
-## Deploy to GitHub Pages (free hosting → Add to Home Screen)
+## Hosting
 
-### 1. Create the repo
+The app is served from GitHub Pages at:
 
-```bash
-git init
-git add .
-git commit -m "Initial commit"
+```
+https://dankashay123.github.io/Rui-Bubble-Pop/
 ```
 
-### 2. Push to GitHub
+Source: **Settings → Pages → Deploy from a branch → `main` / `/ (root)`**
 
-```bash
-# Create a new repo on github.com first, then:
-git remote add origin https://github.com/YOUR_USERNAME/bubble-smash.git
-git branch -M main
-git push -u origin main
-```
+Because the site lives in a subdirectory, `manifest.json` uses
+`"start_url": "/Rui-Bubble-Pop/index.html"` and `sw.js` prefixes every entry in
+`ASSETS` with `/Rui-Bubble-Pop/`. Keep both in sync if the repo is ever renamed.
 
-### 3. Enable GitHub Pages
-
-1. Go to your repo on GitHub
-2. **Settings → Pages**
-3. Source: **Deploy from a branch**
-4. Branch: `main` / `/ (root)`
-5. Click **Save**
-
-Your app will be live at:
-```
-https://YOUR_USERNAME.github.io/bubble-smash/
-```
-
-> ⚠️ **Important:** The service worker uses absolute paths (`/sw.js`). If your repo is not at the root (e.g. it's at `/bubble-smash/`), update the `start_url` in `manifest.json` to `/bubble-smash/index.html` and update `ASSETS` in `sw.js` to use `/bubble-smash/` prefixed paths. See note below.
-
-### 4. Add to iPhone Home Screen
+## Add to iPhone Home Screen
 
 1. Open the URL in **Safari** (must be Safari, not Chrome)
-2. Tap the **Share** button (box with arrow)
-3. Tap **"Add to Home Screen"**
-4. Tap **Add**
+2. Tap the **Share** button
+3. Tap **"Add to Home Screen"** → **Add**
 
-The app will launch fullscreen with no browser UI — exactly like a native app.
+Launches fullscreen with no browser UI.
 
----
+## Shipping an update
 
-## GitHub Pages subdirectory fix
-
-If your site is served from `https://username.github.io/bubble-smash/` (not a custom domain), update two files:
-
-**manifest.json** — change `start_url`:
-```json
-"start_url": "/bubble-smash/index.html"
-```
-
-**sw.js** — change the ASSETS array:
-```js
-const ASSETS = [
-  '/bubble-smash/index.html',
-  '/bubble-smash/manifest.json',
-  '/bubble-smash/icon-192.png',
-  '/bubble-smash/icon-512.png'
-];
-```
-
+Bump `CACHE` in `sw.js` (currently `ruis-reef-v6`) whenever `index.html` changes.
+The service worker is network-first, but the version bump is what clears stale
+caches for anyone who already installed the app.

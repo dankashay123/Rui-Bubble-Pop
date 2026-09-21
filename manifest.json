@@ -1,12 +1,12 @@
 {
-  "name": "Bubble Smash",
-  "short_name": "Bubble Smash",
+  "name": "Rui's Reef",
+  "short_name": "Rui's Reef",
   "description": "A toddler bubble-popping app",
   "start_url": "/Rui-Bubble-Pop/index.html",
   "display": "fullscreen",
   "orientation": "portrait",
-  "background_color": "#ffb3d9",
-  "theme_color": "#ffb3d9",
+  "background_color": "#021028",
+  "theme_color": "#021028",
   "icons": [
     {
       "src": "icon-192.png",
