@@ -69,6 +69,8 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
 
 /* ══ HUB ══ */
 #hub .wrap{justify-content:center;gap:18px;}
+#hub-top{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);
+  right:16px;z-index:5;}
 .hub-title{font-family:var(--disp);text-align:center;line-height:1;margin-bottom:2px;}
 .hub-title .t1{display:block;font-size:clamp(38px,11vw,58px);color:#fff;
   text-shadow:0 0 26px rgba(120,235,255,.9),0 0 60px rgba(60,190,230,.5);}
@@ -108,6 +110,17 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
   display:flex;align-items:center;justify-content:center;cursor:pointer;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.26);}
 .back:active{transform:scale(.9);}
+.mute{width:42px;height:42px;flex:none;border-radius:50%;cursor:pointer;
+  border:1.5px solid rgba(255,255,255,.22);background:rgba(9,58,84,.72);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22);}
+.mute:active{transform:scale(.9);}
+.mute svg{width:21px;height:21px;display:block;}
+.mute .wave{transition:opacity .18s ease;}
+.mute .slash{opacity:0;transition:opacity .18s ease;}
+.mute.off .wave{opacity:0;}
+.mute.off .slash{opacity:1;}
+.mute.off{background:rgba(9,58,84,.45);border-color:rgba(255,255,255,.14);}
 .dots{display:flex;gap:6px;flex:1;justify-content:center;}
 .dot{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.2);
   transition:background .3s,box-shadow .3s;}
@@ -177,8 +190,9 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
   display:flex;align-items:center;justify-content:center;
   opacity:0;transform:scale(.4);}
 .cbub.in{animation:orbIn .4s cubic-bezier(.34,1.56,.64,1) forwards;}
-.cbub .em{font-size:56%;line-height:1;pointer-events:none;
+.cbub .sh{width:62%;height:62%;pointer-events:none;
   filter:drop-shadow(0 3px 8px rgba(0,0,0,.3));}
+.sh svg,.face svg,#cel-obj svg{display:block;width:100%;height:100%;}
 .cbub .gloss{position:absolute;top:9%;left:13%;width:40%;height:29%;border-radius:50%;
   transform:rotate(-30deg);pointer-events:none;
   background:radial-gradient(ellipse,rgba(255,255,255,.88),transparent 70%);}
@@ -277,6 +291,8 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
   16%{transform:translateX(4%) scaleX(-1) scale(1.08)}24%{transform:translateX(11%) scaleX(-1) scale(1)}
   76%{transform:translateX(11%) scaleX(-1) scale(1)}100%{transform:translateX(108%) scaleX(-1) scale(.8)}}
 .swimmer{position:fixed;top:0;left:0;line-height:1;pointer-events:all;cursor:pointer;will-change:transform;}
+.swimmer svg,.creature svg{display:block;width:100%;height:100%;}
+.creature{line-height:0;}
 #jelly{position:fixed;top:0;left:0;z-index:40;pointer-events:all;cursor:pointer;
   will-change:transform,opacity;filter:drop-shadow(0 0 26px rgba(150,240,255,.75));}
 @keyframes jellyIn{from{opacity:0}to{opacity:1}}
@@ -317,10 +333,12 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
 
 /* ══ CELEBRATION ══ */
 #cel{position:fixed;inset:0;z-index:240;display:flex;align-items:center;justify-content:center;
+  backdrop-filter:blur(7px);-webkit-backdrop-filter:blur(7px);
   opacity:0;pointer-events:none;transition:opacity .28s ease;}
 #cel.on{opacity:1;pointer-events:auto;}
 .cel-in{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:20px;}
-#cel-obj{font-size:clamp(88px,26vw,140px);line-height:1;
+#cel-obj{width:clamp(96px,30vw,164px);height:clamp(96px,30vw,164px);
+  margin:0 auto;font-size:clamp(88px,26vw,140px);line-height:1;
   filter:drop-shadow(0 12px 30px rgba(0,0,0,.45));
   animation:celObj .7s cubic-bezier(.34,1.56,.64,1);}
 @keyframes celObj{0%{transform:scale(0) rotate(-30deg)}60%{transform:scale(1.25) rotate(8deg)}
@@ -371,7 +389,7 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
 <div id="fx"></div>
 
 <!-- ══ HUB ══ -->
-<section class="screen" id="hub"><div class="wrap">
+<section class="screen" id="hub"><div id="hub-top"><button class="mute" id="m-hub" aria-label="Sound on or off"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 9.5h3.2L12 5.4v13.2L7.2 14.5H4z" fill="#eafaff"/><g class="wave" stroke="#eafaff" stroke-width="1.9" stroke-linecap="round"><path d="M15.4 9.2a4 4 0 0 1 0 5.6"/><path d="M18 6.8a7.5 7.5 0 0 1 0 10.4"/></g><g class="slash" stroke="#eafaff" stroke-width="1.9" stroke-linecap="round"><path d="M16 9.5l5 5M21 9.5l-5 5"/></g></svg></button></div><div class="wrap">
   <div class="hub-title"><span class="t1">Rui's Reef</span><span class="t2">Pick something to do</span></div>
   <div class="tiles">
     <button class="tile" id="t-play">
@@ -398,17 +416,17 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
       <span class="sb">Pop and play</span>
     </button>
     <button class="tile" id="t-color">
-      <span class="ic">🎨</span><span class="nm">Colors</span>
+      <span class="ic"><svg class="ic-svg" viewBox="0 0 64 64" aria-hidden="true"><circle cx="22" cy="24" r="15" fill="#FF3B3B" stroke="#ff8a8a" stroke-width="2"/><ellipse cx="16.9" cy="18.3" rx="4.5" ry="3.0" fill="#fff" opacity=".8" transform="rotate(-30 16.9 18.3)"/><circle cx="43" cy="27" r="13" fill="#3580FF" stroke="#93bcff" stroke-width="2"/><ellipse cx="38.58" cy="22.06" rx="3.9" ry="2.6" fill="#fff" opacity=".8" transform="rotate(-30 38.58 22.06)"/><circle cx="31" cy="45" r="14" fill="#FFD000" stroke="#ffe98a" stroke-width="2"/><ellipse cx="26.24" cy="39.68" rx="4.2" ry="2.8000000000000003" fill="#fff" opacity=".8" transform="rotate(-30 26.24 39.68)"/></svg></span><span class="nm">Colors</span>
       <span class="sb">Find the color</span>
       <span class="pills" id="p-color" data-stop="1"></span>
     </button>
     <button class="tile" id="t-shape">
-      <span class="ic">⭐</span><span class="nm">Shapes</span>
+      <span class="ic"><svg class="ic-svg" viewBox="0 0 64 64" aria-hidden="true"><polygon points="20,8 30,28 10,28" fill="#FF3B3B" stroke="#ff9a9a" stroke-width="2" stroke-linejoin="round"/><rect x="36" y="9" width="20" height="20" rx="4" fill="#3580FF" stroke="#9cc2ff" stroke-width="2"/><polygon points="20,33 24,44 36,45 27,52 30,63 20,57 10,63 13,52 4,45 16,44" fill="#FFD000" stroke="#ffe27a" stroke-width="2" stroke-linejoin="round"/><circle cx="46" cy="47" r="12" fill="#2EBD6E" stroke="#8fe3b4" stroke-width="2"/></svg></span><span class="nm">Shapes</span>
       <span class="sb">Find the shape</span>
       <span class="pills" id="p-shape" data-stop="1"></span>
     </button>
     <button class="tile" id="t-count">
-      <span class="ic">🐠</span><span class="nm">Counting</span>
+      <span class="ic"><svg class="ic-svg" viewBox="0 0 64 64" aria-hidden="true"><circle cx="16" cy="22" r="12" fill="rgba(84,200,255,.5)" stroke="#8fe4ff" stroke-width="2"/><ellipse cx="11.92" cy="17.439999999999998" rx="3.5999999999999996" ry="2.4000000000000004" fill="#fff" opacity=".8" transform="rotate(-30 11.92 17.439999999999998)"/><circle cx="16.0" cy="22.0" r="3.1" fill="#fff"/><circle cx="43" cy="19" r="13" fill="rgba(44,224,164,.5)" stroke="#7df0c8" stroke-width="2"/><ellipse cx="38.58" cy="14.059999999999999" rx="3.9" ry="2.6" fill="#fff" opacity=".8" transform="rotate(-30 38.58 14.059999999999999)"/><circle cx="38.8" cy="19.0" r="3.1" fill="#fff"/><circle cx="47.2" cy="19.0" r="3.1" fill="#fff"/><circle cx="30" cy="46" r="15" fill="rgba(255,126,196,.5)" stroke="#ffaed8" stroke-width="2"/><ellipse cx="24.9" cy="40.3" rx="4.5" ry="3.0" fill="#fff" opacity=".8" transform="rotate(-30 24.9 40.3)"/><circle cx="30.0" cy="41.4" r="3.1" fill="#fff"/><circle cx="25.6" cy="49.0" r="3.1" fill="#fff"/><circle cx="34.4" cy="49.0" r="3.1" fill="#fff"/></svg></span><span class="nm">Counting</span>
       <span class="sb">Pop and count</span>
       <span class="pills" id="p-count" data-stop="1"></span>
     </button>
@@ -421,6 +439,7 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
     <button class="back" id="q-back">←</button>
     <div class="dots" id="q-dots"><i class="dot on"></i><i class="dot"></i><i class="dot"></i><i class="dot"></i></div>
     <div class="tally"><span class="lb">Right</span><span class="nb" id="q-score">0</span></div>
+    <button class="mute" id="m-quiz" aria-label="Sound on or off"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 9.5h3.2L12 5.4v13.2L7.2 14.5H4z" fill="#eafaff"/><g class="wave" stroke="#eafaff" stroke-width="1.9" stroke-linecap="round"><path d="M15.4 9.2a4 4 0 0 1 0 5.6"/><path d="M18 6.8a7.5 7.5 0 0 1 0 10.4"/></g><g class="slash" stroke="#eafaff" stroke-width="1.9" stroke-linecap="round"><path d="M16 9.5l5 5M21 9.5l-5 5"/></g></svg></button>
   </div>
   <div class="ask">
     <span class="eye" id="q-eye">Find the color!</span>
@@ -436,6 +455,7 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
     <button class="back" id="c-back">←</button>
     <div class="dots" style="visibility:hidden"><i class="dot"></i></div>
     <div class="tally"><span class="lb">Right</span><span class="nb" id="c-score">0</span></div>
+    <button class="mute" id="m-count" aria-label="Sound on or off"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 9.5h3.2L12 5.4v13.2L7.2 14.5H4z" fill="#eafaff"/><g class="wave" stroke="#eafaff" stroke-width="1.9" stroke-linecap="round"><path d="M15.4 9.2a4 4 0 0 1 0 5.6"/><path d="M18 6.8a7.5 7.5 0 0 1 0 10.4"/></g><g class="slash" stroke="#eafaff" stroke-width="1.9" stroke-linecap="round"><path d="M16 9.5l5 5M21 9.5l-5 5"/></g></svg></button>
   </div>
   <div class="ask"><span class="eye" id="c-eye">Pop them all!</span>
     <span class="l1" id="c-l1">Count the fish</span></div>
@@ -459,6 +479,7 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
       </svg>
       <span id="hud-label">Popped</span><span id="hud-count">0</span>
     </div>
+    <button class="mute" id="m-play" aria-label="Sound on or off"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 9.5h3.2L12 5.4v13.2L7.2 14.5H4z" fill="#eafaff"/><g class="wave" stroke="#eafaff" stroke-width="1.9" stroke-linecap="round"><path d="M15.4 9.2a4 4 0 0 1 0 5.6"/><path d="M18 6.8a7.5 7.5 0 0 1 0 10.4"/></g><g class="slash" stroke="#eafaff" stroke-width="1.9" stroke-linecap="round"><path d="M16 9.5l5 5M21 9.5l-5 5"/></g></svg></button>
   </div>
 </section>
 
@@ -483,6 +504,129 @@ const $=id=>document.getElementById(id);
 
 let SCREEN='hub';
 const stage=$('stage'), fxLayer=$('fx'), echoEl=$('echo');
+
+/* ═══════════ ART — hand-drawn SVG icon set ═══════════
+   One visual language for the whole reef: chunky rounded silhouettes, a
+   light-to-saturated radial body fill, one soft highlight, no hairlines.
+   Every icon draws in a 100x100 box from a single base colour, and every icon
+   also has to read as a flat white silhouette on a coloured orb — so internal
+   detail goes through D(), which is a shade of the body when tinted and a
+   translucent ink when flat. */
+const ART=(function(){
+  let uid=0;
+  const nid=()=>'a'+(uid++).toString(36);
+  function hsl(hex,dl,ds){
+    const n=parseInt(hex.slice(1),16), r=(n>>16)/255, g=((n>>8)&255)/255, b=(n&255)/255;
+    const mx=Math.max(r,g,b), mn=Math.min(r,g,b); let h=0,s=0,l=(mx+mn)/2;
+    if(mx!==mn){const d=mx-mn; s=l>.5?d/(2-mx-mn):d/(mx+mn);
+      h=mx===r?((g-b)/d+(g<b?6:0)):mx===g?((b-r)/d+2):((r-g)/d+4); h/=6;}
+    const L=Math.max(0,Math.min(100,l*100+(dl||0))), S=Math.max(0,Math.min(100,s*100+(ds||0)));
+    return 'hsl('+Math.round(h*360)+' '+Math.round(S)+'% '+Math.round(L)+'%)';
+  }
+  function grad(id,base){
+    return '<radialGradient id="'+id+'" cx="34%" cy="26%" r="78%">'
+      +'<stop offset="0%" stop-color="'+hsl(base,20,-6)+'"/>'
+      +'<stop offset="55%" stop-color="'+base+'"/>'
+      +'<stop offset="100%" stop-color="'+hsl(base,-14,4)+'"/></radialGradient>';
+  }
+  const shine=(cx,cy,rx,ry,o)=>'<ellipse cx="'+cx+'" cy="'+cy+'" rx="'+rx+'" ry="'+ry+'" fill="#fff" opacity="'+(o||.5)+'" transform="rotate(-28 '+cx+' '+cy+')"/>';
+  const eye=(cx,cy,r)=>'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="#fff"/>'
+    +'<circle cx="'+cx+'" cy="'+cy+'" r="'+(r*.56)+'" fill="#123043"/>'
+    +'<circle cx="'+(cx-r*.24)+'" cy="'+(cy-r*.28)+'" r="'+(r*.2)+'" fill="#fff"/>';
+
+  // f = body fill, D(depth) = internal detail, sh() = highlight (dropped when flat)
+  const S={
+    fish:(f,D,sh)=>'<path d="M30 50C30 34 45 26 60 28c12 2 22 10 27 22-5 12-15 20-27 22-15 2-30-6-30-22Z" fill="'+f+'"/>'
+      +'<path d="M31 50 11 33c-3-3-7 0-6 4l3 13-3 13c-1 4 3 7 6 4l20-17Z" fill="'+f+'"/>'
+      +'<path d="M52 29c4-9 13-12 18-8-3 5-3 9-1 13Z" fill="'+f+'"/>'
+      +'<path d="M52 71c4 9 13 12 18 8-3-5-3-9-1-13Z" fill="'+f+'"/>'
+      +'<path d="M46 52c-2 9 5 14 12 11" stroke="'+D(1)+'" stroke-width="5" fill="none" stroke-linecap="round"/>'
+      +sh(48,38,13,6,.4)+eye(72,44,6),
+    whale:(f,D,sh)=>'<path d="M74 40 97 21c3-2 6 2 4 5L84 52l17 26c2 3-1 7-4 5L74 64Z" fill="'+f+'"/>'
+      +'<path d="M4 54C4 32 22 20 44 20c18 0 30 8 35 22 2 5 2 19 0 24-5 14-17 22-35 22C22 88 4 76 4 54Z" fill="'+f+'"/>'
+      +'<path d="M6 65c10 14 26 21 40 21 14 0 25-5 32-14-14 9-52 14-72-7Z" fill="'+D(1)+'" opacity=".5"/>'
+      +'<path d="M5 62c11 8 26 11 39 8" stroke="'+D(3)+'" stroke-width="4.5" fill="none" stroke-linecap="round"/>'
+      +'<path d="M31 22c-4-9-3-16 3-21 3-2 7 1 5 5-3 6-3 10-1 15Z" fill="'+f+'"/>'
+      +'<g fill="'+f+'"><circle cx="45" cy="9" r="3.4"/><circle cx="20" cy="10" r="2.8"/><circle cx="40" cy="2" r="2.4"/></g>'
+      +sh(28,34,14,7,.4)+eye(22,50,6.5),
+    turtle:(f,D,sh)=>'<ellipse cx="88" cy="50" rx="11" ry="10" fill="'+f+'"/>'
+      +'<circle cx="92" cy="47" r="2.6" fill="#123043"/>'
+      +'<g fill="'+f+'"><ellipse cx="26" cy="26" rx="11" ry="8" transform="rotate(-36 26 26)"/>'
+      +'<ellipse cx="26" cy="74" rx="11" ry="8" transform="rotate(36 26 74)"/>'
+      +'<ellipse cx="68" cy="24" rx="10" ry="7" transform="rotate(-24 68 24)"/>'
+      +'<ellipse cx="68" cy="76" rx="10" ry="7" transform="rotate(24 68 76)"/></g>'
+      +'<ellipse cx="48" cy="50" rx="34" ry="27" fill="'+f+'"/>'
+      +'<g fill="'+D(2)+'" opacity=".8"><circle cx="48" cy="50" r="10"/>'
+      +'<ellipse cx="26" cy="50" rx="7" ry="9"/><ellipse cx="70" cy="50" rx="7" ry="9"/>'
+      +'<ellipse cx="48" cy="30" rx="9" ry="6"/><ellipse cx="48" cy="70" rx="9" ry="6"/></g>'
+      +sh(34,34,13,6,.42),
+    crab:(f,D,sh)=>'<g stroke="'+f+'" stroke-width="7" stroke-linecap="round">'
+      +'<path d="M26 68 12 80M24 58 8 62M74 68 88 80M76 58 92 62"/></g>'
+      +'<path d="M30 46C22 28 12 24 6 30c-6 7 2 17 14 22l4-2-6-6 12 2Z" fill="'+f+'"/>'
+      +'<path d="M70 46c8-18 18-22 24-16 6 7-2 17-14 22l-4-2 6-6-12 2Z" fill="'+f+'"/>'
+      +'<ellipse cx="50" cy="58" rx="30" ry="22" fill="'+f+'"/>'
+      +'<path d="M36 66c8 6 20 6 28 0" stroke="'+D(2)+'" stroke-width="4.5" fill="none" stroke-linecap="round"/>'
+      +sh(36,46,12,6,.4)+eye(40,50,6)+eye(60,50,6),
+    octopus:(f,D,sh)=>'<g stroke="'+f+'" stroke-width="12" fill="none" stroke-linecap="round">'
+      +'<path d="M22 60c-4 12-10 16-14 24M37 66c-3 12-6 18-6 26M63 66c3 12 6 18 6 26M78 60c4 12 10 16 14 24"/></g>'
+      +'<path d="M18 56c0-20 14-34 32-34s32 14 32 34c0 8-6 12-14 12H32c-8 0-14-4-14-12Z" fill="'+f+'"/>'
+      +sh(36,36,14,7,.42)+eye(38,46,7)+eye(62,46,7),
+    jelly:(f,D,sh)=>'<g stroke="'+f+'" stroke-width="5.5" fill="none" stroke-linecap="round">'
+      +'<path d="M28 58c-4 12 4 18-2 30M42 62c-3 14 3 20-2 32M58 62c3 14-3 20 2 32M72 58c4 12-4 18 2 30"/></g>'
+      +'<path d="M16 54c0-21 15-36 34-36s34 15 34 36c0 7-8 4-13 10-5-6-12-2-17-8-5 6-12 2-17 8-5-6-13-3-21-10Z" fill="'+f+'"/>'
+      +sh(36,34,15,8,.55)+eye(40,44,5)+eye(60,44,5),
+    star:(f,D,sh)=>'<path d="M50 8 62 36l30 3-22 20 6 30-26-15-26 15 6-30-22-20 30-3Z" fill="'+f+'" stroke="'+f+'" stroke-width="9" stroke-linejoin="round"/>'
+      +sh(38,32,11,6,.45),
+    starfish:(f,D,sh)=>'<path d="M50 8 62 36l30 3-22 20 6 30-26-15-26 15 6-30-22-20 30-3Z" fill="'+f+'" stroke="'+f+'" stroke-width="10" stroke-linejoin="round"/>'
+      +'<g fill="'+D(2)+'" opacity=".7"><circle cx="50" cy="32" r="3.4"/><circle cx="50" cy="46" r="3.8"/>'
+      +'<circle cx="37" cy="56" r="3.4"/><circle cx="63" cy="56" r="3.4"/><circle cx="50" cy="64" r="3.4"/></g>'
+      +sh(38,30,10,5,.4),
+    shell:(f,D,sh)=>'<path d="M50 88C20 88 8 62 12 40a38 38 0 0 1 76 0c4 22-8 48-38 48Z" fill="'+f+'"/>'
+      +'<g stroke="'+D(2)+'" stroke-width="4.5" fill="none" stroke-linecap="round" opacity=".7">'
+      +'<path d="M50 86V24M50 86 27 36M50 86 73 36M50 86 15 53M50 86 85 53"/></g>'
+      +sh(36,34,13,7,.42),
+    flower:(f,D,sh)=>'<g fill="'+f+'">'
+      +[0,60,120,180,240,300].map(a=>'<ellipse cx="50" cy="24" rx="15" ry="20" transform="rotate('+a+' 50 50)"/>').join('')
+      +'</g><circle cx="50" cy="50" r="15" fill="'+D(1)+'"/>'
+      +'<circle cx="50" cy="50" r="7" fill="'+D(2)+'" opacity=".5"/>'+sh(43,20,8,5,.5),
+    butterfly:(f,D,sh)=>'<g stroke="'+f+'" stroke-width="4" fill="none" stroke-linecap="round">'
+      +'<path d="M47 34c-3-9-8-13-14-13M53 34c3-9 8-13 14-13"/></g>'
+      +'<g fill="'+f+'">'
+      +'<path d="M46 48C34 24 18 16 10 24 0 34 12 52 44 56Z"/>'
+      +'<path d="M54 48C66 24 82 16 90 24c10 10-2 28-34 32Z"/>'
+      +'<path d="M46 54C36 74 22 86 14 80 4 72 16 60 44 58Z"/>'
+      +'<path d="M54 54c10 20 24 32 32 26 10-8-2-20-30-22Z"/></g>'
+      +'<g fill="'+D(2)+'" opacity=".75"><circle cx="28" cy="36" r="5.5"/><circle cx="72" cy="36" r="5.5"/>'
+      +'<circle cx="30" cy="70" r="4.5"/><circle cx="70" cy="70" r="4.5"/></g>'
+      +'<path d="M50 30c4 0 6 4 6 10v20c0 8-3 14-6 14s-6-6-6-14V40c0-6 2-10 6-10Z" fill="'+D(3)+'"/>',
+    heart:(f,D,sh)=>'<path d="M50 84C22 62 8 48 8 32 8 19 18 10 30 10c8 0 15 4 20 12 5-8 12-12 20-12 12 0 22 9 22 22 0 16-14 30-42 52Z" fill="'+f+'"/>'
+      +sh(34,30,13,7,.45),
+    balloon:(f,D,sh)=>'<path d="M50 74c-5 0-8 4-8 7s3 5 8 5 8-2 8-5-3-7-8-7Z" fill="'+f+'"/>'
+      +'<path d="M50 78 46 86" stroke="'+D(3)+'" stroke-width="3" stroke-linecap="round"/>'
+      +'<path d="M48 86c4 6-6 8-2 14" stroke="'+f+'" stroke-width="3.6" fill="none" stroke-linecap="round"/>'
+      +'<ellipse cx="50" cy="42" rx="30" ry="36" fill="'+f+'"/>'+sh(38,26,12,8,.5),
+    drop:(f,D,sh)=>'<path d="M50 8c14 20 26 32 26 46a26 26 0 1 1-52 0C24 40 36 28 50 8Z" fill="'+f+'"/>'
+      +sh(40,42,10,7,.5),
+  };
+  const KEYS=Object.keys(S);
+
+  function icon(id,base,opt){
+    opt=opt||{};
+    const d=S[id]||S.fish;
+    if(opt.flat){
+      const w=opt.flat===true?'#fff':opt.flat;
+      // Flat mode: solid silhouette, detail as translucent ink so it still reads.
+      const D=n=>'rgba(12,44,66,'+(.1+n*.07).toFixed(2)+')';
+      return '<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">'
+        +d(w,D,()=>'')+'</svg>';
+    }
+    const g=nid();
+    const D=n=>hsl(base,-6*n,4);
+    return '<svg viewBox="0 0 100 100" width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">'
+      +'<defs>'+grad(g,base)+'</defs>'+d('url(#'+g+')',D,shine)+'</svg>';
+  }
+  return {icon:icon,keys:KEYS,hsl:hsl};
+})();
 
 /* ═══════════ ENGINE ═══════════ */
 const ENT=new Set();
@@ -550,11 +694,26 @@ addEventListener('resize',()=>{
 });
 
 /* ═══════════ AUDIO ═══════════ */
+const VOL=.9;
+let MUTED=false;
+try{ MUTED=localStorage.getItem('reef-mute')==='1'; }catch(e){}
+function setMuted(v){
+  MUTED=!!v;
+  try{ localStorage.setItem('reef-mute',MUTED?'1':'0'); }catch(e){}
+  // The pad and every one-shot run through master, so one gain silences the reef
+  // without tearing down the audio graph — unmuting is instant.
+  if(master){
+    const t=AC.currentTime;
+    master.gain.cancelScheduledValues(t);
+    master.gain.setTargetAtTime(MUTED?0:VOL,t,.03);
+  }
+  document.querySelectorAll('.mute').forEach(b=>b.classList.toggle('off',MUTED));
+}
 let AC=null,master=null,muffle=null;
 function ac(){
   if(!AC){
     AC=new (window.AudioContext||window.webkitAudioContext)();
-    master=AC.createGain(); master.gain.value=.9;
+    master=AC.createGain(); master.gain.value=MUTED?0:VOL;
     muffle=AC.createBiquadFilter(); muffle.type='lowpass';
     muffle.frequency.value=5200; muffle.Q.value=.5;
     muffle.connect(master); master.connect(AC.destination);
@@ -563,6 +722,7 @@ function ac(){
   return AC;
 }
 function tone(o){
+  if(MUTED)return;
   try{
     const c=ac(),n=c.currentTime;
     const osc=c.createOscillator(),g=c.createGain();
@@ -580,6 +740,7 @@ function tone(o){
   }catch(e){}
 }
 function arp(f,step,vol){
+  if(MUTED)return;
   try{
     const c=ac(),n=c.currentTime;
     f.forEach((fr,i)=>{
@@ -607,7 +768,7 @@ const sLevel=()=>arp([392,523,659,784,1047,1319],.075,.2);
 
 let padOn=false;
 function startPad(){
-  if(padOn)return; padOn=true;
+  if(padOn||MUTED)return; padOn=true;
   try{
     const c=ac(); const g=c.createGain(); g.gain.value=.033; g.connect(muffle);
     [55,82.4,110,164.8].forEach((f,i)=>{
@@ -772,10 +933,16 @@ function echo(c){
 /* ═══════════ FREE PLAY DATA ═══════════ */
 const WORDS=['Mama','Papa','Rui','Roxy','Rio','Kitty','Fishy','Splash','Bubble','Hi!','Hey!','Wow!'];
 const EMOJIS=['✨','💥','⭐','🌟','🎉','🌈','💫','🎊','🐠','🐟','🐚','🌊','💧'];
-const FACES=['😊','😄','🥰','😜','🤩','😁','🥳'];
 const TREASURE=['🎁','💎','👑','🐚','⭐','🌟','🦄','🎠','🌈','🍭'];
-const CREATURES=['🐢','🦀','🐙','🐠','🐡','🦈'];
-const CALLS={'🐢':'HELLO!','🦀':'SNIP SNIP!','🐙':'BLUB BLUB!','🐠':'GLUB!','🐡':'POOF!','🦈':'CHOMP!'};
+const CREATURES=[
+  {icon:'turtle', c:'#3fbf6f', call:'HELLO!'},
+  {icon:'crab',   c:'#ff5a4e', call:'SNIP SNIP!'},
+  {icon:'octopus',c:'#c06bff', call:'BLUB BLUB!'},
+  {icon:'fish',   c:'#3fa9f5', call:'GLUB!'},
+  {icon:'jelly',  c:'#8fd9ff', call:'BLUP!'},
+  {icon:'starfish',c:'#ffb03f',call:'HI THERE!'},
+];
+const FISH_COLORS=['#3fa9f5','#ffb03f','#ff6fa8','#2ce0a4','#c06bff','#ff8a3f','#54c8ff'];
 const TINTS=[
   {a:'rgba(255,190,225,.30)',b:'rgba(255,90,165,.42)',rim:'#ff7ec4'},
   {a:'rgba(180,240,255,.30)',b:'rgba(40,175,255,.42)',rim:'#54c8ff'},
@@ -824,9 +991,11 @@ function makeBubble(cx,cy,opt){
     const s=document.createElement('div'); s.className='face'; s.textContent='⭐';
     s.style.fontSize=Math.round(size*.34)+'px';
     s.style.filter='drop-shadow(0 0 12px rgba(255,225,120,.95))'; el.appendChild(s);
-  }else if(Math.random()<.26){
-    const f=document.createElement('div'); f.className='face'; f.textContent=pick(FACES);
-    f.style.fontSize=Math.round(size*.42)+'px'; f.style.opacity='.93'; el.appendChild(f);
+  }else if(Math.random()<.3){
+    const f=document.createElement('div'); f.className='face';
+    f.innerHTML=ART.icon(pick(COLOR_ICONS),'#ffffff',{flat:true});
+    f.style.width=f.style.height=Math.round(size*.5)+'px';
+    f.style.opacity='.8'; el.appendChild(f);
   }
   const ent={
     el,kind,size,tint,x:cx,y:cy,
@@ -1026,8 +1195,9 @@ function shout(x,y,text){
 }
 function mCreature(){
   const c=pick(CREATURES), edge=pick(['bottom','left','right']);
-  const el=document.createElement('div'); el.className='creature'; el.textContent=c;
-  el.style.fontSize='clamp(78px,21vw,128px)';
+  const el=document.createElement('div'); el.className='creature';
+  el.innerHTML=ART.icon(c.icon,c.c);
+  el.style.width=el.style.height='clamp(84px,23vw,138px)';
   const dur=3.6;
   if(edge==='bottom'){el.style.left=rand(16,Math.max(20,W-150))+'px';el.style.bottom='0';
     el.style.animation='peekUp '+dur+'s cubic-bezier(.34,1.2,.64,1) forwards';}
@@ -1038,8 +1208,8 @@ function mCreature(){
   const tap=e=>{
     e.stopPropagation();
     const r=el.getBoundingClientRect(), x=r.left+r.width/2, y=r.top+r.height/2;
-    burst(x,y,13,[c],{spread:180,size:'clamp(30px,8vw,52px)'});
-    shout(x,y-58,CALLS[c]||'HI!');
+    burst(x,y,13,EMOJIS,{spread:180,size:'clamp(30px,8vw,52px)'});
+    shout(x,y-58,c.call);
     el.style.transition='transform .18s cubic-bezier(.34,1.56,.64,1)';
     const cur=el.style.transform||'';
     el.style.transform=cur+' scale(1.4)';
@@ -1056,8 +1226,8 @@ function mShoal(){
   const baseY=rand(H*.2,H*.72), speed=rand(105,165);
   for(let i=0;i<n;i++){
     const el=document.createElement('div'); el.className='swimmer';
-    el.textContent=Math.random()>.3?'🐠':'🐟';
-    el.style.fontSize=rand(24,44)+'px'; el.style.zIndex='7';
+    el.innerHTML=ART.icon('fish',pick(FISH_COLORS));
+    el.style.width=el.style.height=rand(30,54)+'px'; el.style.zIndex='7';
     el.style.filter='drop-shadow(0 4px 10px rgba(0,30,50,.4))';
     document.body.appendChild(el);
     const oy=rand(-70,70), ox=rand(-260,60)*dir;
@@ -1071,7 +1241,7 @@ function mShoal(){
     const tap=e=>{
       e.stopPropagation();
       const r=el.getBoundingClientRect();
-      burst(r.left+r.width/2,r.top+r.height/2,7,['💧','✨','🐠'],{spread:120});
+      burst(r.left+r.width/2,r.top+r.height/2,7,['💧','✨','🫧'],{spread:120});
       sBlub(); kill(ent);
     };
     el.addEventListener('touchstart',tap,{passive:false});
@@ -1081,8 +1251,9 @@ function mShoal(){
 }
 function mWhale(){
   const dir=Math.random()>.5?1:-1, y=rand(H*.18,H*.5), speed=rand(52,74);
-  const el=document.createElement('div'); el.className='swimmer'; el.textContent='🐋';
-  el.style.fontSize='clamp(86px,24vw,150px)'; el.style.zIndex='9';
+  const el=document.createElement('div'); el.className='swimmer';
+  el.innerHTML=ART.icon('whale','#5a86dc');
+  el.style.width=el.style.height='clamp(96px,27vw,168px)'; el.style.zIndex='9';
   el.style.filter='drop-shadow(0 14px 34px rgba(0,25,50,.5))';
   document.body.appendChild(el);
   const ent=add({el,dead:false,t:0,blow:0,x:dir>0?-220:W+220,
@@ -1281,6 +1452,7 @@ function uiUnder(t){
       ||n.classList.contains('swimmer')||n.classList.contains('tile')
       ||n.classList.contains('back')||n.classList.contains('orb')
       ||n.classList.contains('cbub')||n.classList.contains('pill')
+      ||n.classList.contains('mute')
       ||n.id==='jelly'||n.id==='gauge'))return true;
     n=n.parentElement;
   }
@@ -1414,20 +1586,11 @@ const COLORS=[
   {id:'orange',label:'ORANGE', hex:'#FF8B00',dk:'#C05800'},
   {id:'purple',label:'PURPLE', hex:'#9B59B6',dk:'#612F80'},
 ];
-const COLOR_OBJECTS=[
-  {emoji:'🍎',color:'red'},{emoji:'🍓',color:'red'},{emoji:'❤️',color:'red'},
-  {emoji:'🌹',color:'red'},{emoji:'🍅',color:'red'},{emoji:'🦀',color:'red'},
-  {emoji:'🐳',color:'blue'},{emoji:'💧',color:'blue'},{emoji:'🌊',color:'blue'},
-  {emoji:'🐟',color:'blue'},{emoji:'💙',color:'blue'},{emoji:'🫐',color:'blue'},
-  {emoji:'☀️',color:'yellow'},{emoji:'🍌',color:'yellow'},{emoji:'⭐',color:'yellow'},
-  {emoji:'🌽',color:'yellow'},{emoji:'🐣',color:'yellow'},{emoji:'🍋',color:'yellow'},
-  {emoji:'🐸',color:'green'},{emoji:'🌲',color:'green'},{emoji:'🍃',color:'green'},
-  {emoji:'🥦',color:'green'},{emoji:'🐢',color:'green'},{emoji:'🥝',color:'green'},
-  {emoji:'🎃',color:'orange'},{emoji:'🍊',color:'orange'},{emoji:'🏀',color:'orange'},
-  {emoji:'🥕',color:'orange'},{emoji:'🦊',color:'orange'},{emoji:'🐠',color:'orange'},
-  {emoji:'🍇',color:'purple'},{emoji:'🍆',color:'purple'},{emoji:'🦋',color:'purple'},
-  {emoji:'🔮',color:'purple'},{emoji:'🦄',color:'purple'},{emoji:'☂️',color:'purple'},
-];
+// A colour orb carries a white reef silhouette. The shape is deliberately
+// unrelated to the colour being asked about, so the only thing that tells the
+// orbs apart is the colour itself — which is the thing being taught.
+const COLOR_ICONS=['fish','whale','turtle','crab','octopus','jelly','starfish',
+  'shell','flower','butterfly','heart','star','drop','balloon'];
 const SHAPE_FILLS=['#FF3B3B','#3580FF','#FFD000','#2EBD6E','#FF8B00','#9B59B6','#FF69B4'];
 const SHAPES=[
   {id:'circle',   label:'CIRCLE',   art:'a', ce:'⭕'},
@@ -1440,6 +1603,9 @@ const SHAPES=[
   {id:'rectangle',label:'RECTANGLE',art:'a', ce:'📐'},
 ];
 function shapeSVG(id,fill){
+  const g='sg'+(Math.random()*1e6|0);
+  const solid=fill;
+  if(fill.charAt(0)==='#')fill='url(#'+g+')';
   const p={
     circle:'<circle cx="50" cy="50" r="43" fill="'+fill+'"/>',
     square:'<rect x="9" y="9" width="82" height="82" rx="10" fill="'+fill+'"/>',
@@ -1450,13 +1616,26 @@ function shapeSVG(id,fill){
     diamond:'<polygon points="50,4 94,50 50,96 6,50" fill="'+fill+'"/>',
     rectangle:'<rect x="7" y="24" width="86" height="52" rx="8" fill="'+fill+'"/>',
   };
-  return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">'+p[id]+'</svg>';
+  const defs=solid.charAt(0)==='#'
+    ?'<defs><radialGradient id="'+g+'" cx="34%" cy="26%" r="78%">'
+      +'<stop offset="0%" stop-color="'+ART.hsl(solid,18,-6)+'"/>'
+      +'<stop offset="55%" stop-color="'+solid+'"/>'
+      +'<stop offset="100%" stop-color="'+ART.hsl(solid,-13,4)+'"/></radialGradient></defs>':'';
+  return '<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">'
+    +defs+p[id]+'</svg>';
 }
 const COUNTABLES=[
-  {n:'fish',emoji:'🐟'},{n:'starfish',emoji:'⭐'},{n:'crabs',emoji:'🦀'},
-  {n:'turtles',emoji:'🐢'},{n:'shells',emoji:'🐚'},{n:'octopuses',emoji:'🐙'},
-  {n:'pufferfish',emoji:'🐡'},{n:'whales',emoji:'🐳'},{n:'seahorses',emoji:'🐴'},
-  {n:'butterflies',emoji:'🦋'},{n:'flowers',emoji:'🌸'},{n:'balloons',emoji:'🎈'},
+  {n:'fish',      icon:'fish',     c:'#3fa9f5'},
+  {n:'whales',    icon:'whale',    c:'#5a86dc'},
+  {n:'turtles',   icon:'turtle',   c:'#3fbf6f'},
+  {n:'crabs',     icon:'crab',     c:'#ff5a4e'},
+  {n:'octopuses', icon:'octopus',  c:'#c06bff'},
+  {n:'jellyfish', icon:'jelly',    c:'#8fd9ff'},
+  {n:'starfish',  icon:'starfish', c:'#ffb03f'},
+  {n:'shells',    icon:'shell',    c:'#ff8fb4'},
+  {n:'flowers',   icon:'flower',   c:'#ff6fa8'},
+  {n:'butterflies',icon:'butterfly',c:'#b07cff'},
+  {n:'balloons',  icon:'balloon',  c:'#ff7a3f'},
 ];
 const PRAISE=['Amazing!','You Got It!','Wonderful!','Great Job!','So Smart!','Correct!','WOW!!!','Brilliant!'];
 
@@ -1499,11 +1678,10 @@ function setDots(n){
 function newColorRound(){
   const pool=G.lastColor?COLORS.filter(c=>c.id!==G.lastColor):COLORS;
   const target=pick(pool); G.lastColor=target.id;
-  const correct=pick(COLOR_OBJECTS.filter(o=>o.color===target.id));
-  const wrongCols=shuffle(COLORS.filter(c=>c.id!==target.id)).slice(0,G.colorN-1);
-  const wrongs=wrongCols.map(c=>pick(COLOR_OBJECTS.filter(o=>o.color===c.id)));
-  const all=shuffle([correct,...wrongs]);
-  return {kind:'color',target,items:all,correct:all.indexOf(correct)};
+  const cols=[target,...shuffle(COLORS.filter(c=>c.id!==target.id)).slice(0,G.colorN-1)];
+  const icons=shuffle(COLOR_ICONS).slice(0,cols.length);
+  const all=shuffle(cols.map((c,i)=>({color:c.id,icon:icons[i]})));
+  return {kind:'color',target,items:all,correct:all.findIndex(o=>o.color===target.id)};
 }
 function newShapeRound(){
   const pool=G.lastShape?SHAPES.filter(s=>s.id!==G.lastShape):SHAPES;
@@ -1544,7 +1722,8 @@ function renderQuiz(){
       orb.style.border='2px solid '+c.hex;
       orb.style.boxShadow='0 0 30px '+c.hex+'66,0 8px 26px rgba(0,15,30,.45),'
         +'inset 0 -8px 18px rgba(255,255,255,.22)';
-      const em=document.createElement('div'); em.className='em'; em.textContent=it.emoji;
+      const em=document.createElement('div'); em.className='sh';
+      em.innerHTML=ART.icon(it.icon,'#ffffff',{flat:true});
       orb.appendChild(em);
     }else{
       orb.style.background='radial-gradient(circle at 32% 26%,rgba(220,250,255,.30),rgba(20,110,150,.45))';
@@ -1602,11 +1781,11 @@ function renderCount(){
     const t=TINTS[i%TINTS.length];
     const b=document.createElement('div'); b.className='cbub';
     b.style.width=size+'px'; b.style.height=size+'px';
-    b.style.fontSize=size+'px';
     b.style.background='radial-gradient(circle at 32% 26%,'+t.a+','+t.b+')';
     b.style.border='2px solid '+t.rim;
     b.style.boxShadow='0 0 '+size*.32+'px '+t.rim+'55,inset 0 -6px 14px rgba(255,255,255,.28)';
-    const em=document.createElement('div'); em.className='em'; em.textContent=r.obj.emoji;
+    const em=document.createElement('div'); em.className='sh';
+    em.innerHTML=ART.icon(r.obj.icon,r.obj.c);
     b.appendChild(em);
     const g=document.createElement('div'); g.className='gloss'; b.appendChild(g);
     onTap(b,()=>countTap(i,b,t));
@@ -1622,7 +1801,7 @@ function countTap(i,el,tint){
   const bb=el.getBoundingClientRect();
   el.classList.add('gone');
   sPop(bb.left+bb.width/2,bb.width);
-  burst(bb.left+bb.width/2,bb.top+bb.height/2,9,[r.obj.emoji,'✨','💫'],{spread:130});
+  burst(bb.left+bb.width/2,bb.top+bb.height/2,9,EMOJIS,{spread:130});
   echo(tint.rim);
   const now=$('c-now'); now.textContent=r.got;
   now.classList.remove('pop'); void now.offsetWidth; now.classList.add('pop');
@@ -1646,20 +1825,23 @@ function celebrate(){
   const gen=G.gen;
   let obj,extra,hex;
   if(r.kind==='color'){
-    obj=r.items[r.correct].emoji; extra="That's "+r.target.label+"!"; hex=r.target.hex;
+    // The reward is where the shape finally appears in the colour it was named for.
+    obj=ART.icon(r.items[r.correct].icon,r.target.hex);
+    extra="That's "+r.target.label+"!"; hex=r.target.hex;
   }else if(r.kind==='shape'){
-    obj=r.target.ce; extra="That's "+r.target.art+' '+r.target.label+'!'; hex='#ffd54a';
+    obj=shapeSVG(r.target.id,'#ffd54a');
+    extra="That's "+r.target.art+' '+r.target.label+'!'; hex='#ffd54a';
   }else{
-    obj=r.obj.emoji; extra='You counted '+r.n+'!'; hex='#7fe8d8';
+    obj=ART.icon(r.obj.icon,r.obj.c); extra='You counted '+r.n+'!'; hex=r.obj.c;
   }
-  $('cel-obj').textContent=obj;
+  $('cel-obj').innerHTML=obj;
   $('cel-praise').textContent=pick(PRAISE);
   const ex=$('cel-extra'); ex.textContent=extra; ex.style.color=hex;
   ex.style.textShadow='0 0 22px '+hex+'aa';
   ['cel-obj','cel-praise','cel-extra','cel-hint'].forEach(id=>{
     const e=$(id); e.style.animation='none'; void e.offsetWidth; e.style.animation='';
   });
-  cel.style.background='radial-gradient(ellipse at 50% 40%,'+hex+'2e 0%,rgba(2,10,28,.86) 66%)';
+  cel.style.background='radial-gradient(ellipse at 50% 40%,'+hex+'40 0%,rgba(2,10,28,.93) 60%)';
   cel.classList.add('on');
   confettiRain(34);
   sLevel();
@@ -1743,6 +1925,12 @@ function buildPills(hostId,vals,get,set){
 buildPills('p-color',[2,3,4,5],()=>G.colorStart,v=>{G.colorStart=v;G.colorN=v;});
 buildPills('p-shape',[2,3,4,5],()=>G.shapeStart,v=>{G.shapeStart=v;G.shapeN=v;});
 buildPills('p-count',[{label:'1–5',val:5},{label:'1–10',val:10}],()=>G.countMax,v=>G.countMax=v);
+
+['m-hub','m-quiz','m-count','m-play'].forEach(id=>{
+  const b=$(id); if(!b)return;
+  b.classList.toggle('off',MUTED);
+  onTap(b,()=>{ ac(); setMuted(!MUTED); if(!MUTED)startPad(); });
+});
 
 onTap($('t-play'), startPlay);
 onTap($('t-color'),()=>startQuiz('color'));

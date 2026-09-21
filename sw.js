@@ -1,5 +1,5 @@
 // Bump this version any time you want to force a full cache clear
-const CACHE = 'ruis-reef-v7';
+const CACHE = 'ruis-reef-v8';
 
 const ASSETS = [
   '/Rui-Bubble-Pop/',
