@@ -256,13 +256,15 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
   100%{opacity:1;transform:var(--tf) scale(1) rotate(var(--tilt))}}
 @keyframes wordOut{0%{opacity:1;transform:var(--tf) scale(1) rotate(var(--tilt))}
   100%{opacity:0;transform:var(--tf) translateY(-46px) scale(.82) rotate(var(--tilt))}}
+.crown svg{display:block;width:1.05em;height:1.05em;}
 .crown{position:absolute;left:50%;top:-.92em;font-size:1.1em;transform:translateX(-50%);
   animation:crownIn .45s cubic-bezier(.34,1.56,.64,1) forwards;
   filter:drop-shadow(0 0 10px rgba(255,215,0,.9));}
 @keyframes crownIn{from{opacity:0;transform:translateX(-50%) translateY(14px) scale(0)}
   to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
-.pcl{position:absolute;top:0;left:0;line-height:1;z-index:36;
-  text-shadow:0 2px 5px rgba(0,0,0,.35);}
+.pcl{position:absolute;top:0;left:0;line-height:0;z-index:36;
+  filter:drop-shadow(0 2px 5px rgba(0,0,0,.35));}
+.pcl svg{display:block;width:100%;height:100%;}
 @keyframes pclOut{
   0%{opacity:1;transform:translate3d(var(--x0),var(--y0),0) scale(.35) rotate(0)}
   28%{opacity:1;transform:translate3d(var(--x1),var(--y1),0) scale(1.18) rotate(var(--r1))}
@@ -304,6 +306,7 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
   filter:blur(3px);pointer-events:none;}
 @keyframes weedBurst{0%{transform:translate3d(0,0,0) scale(.4);opacity:.9}
   100%{transform:translate3d(var(--bx),var(--by),0) scale(1.7);opacity:0}}
+.ruiname span svg{display:block;width:100%;height:100%;}
 .ruiname{position:fixed;top:0;left:0;z-index:26;font-family:var(--disp);
   font-size:clamp(32px,10vw,64px);letter-spacing:.16em;white-space:nowrap;
   will-change:opacity;pointer-events:none;}
@@ -315,6 +318,8 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
 @keyframes ruiOut{from{opacity:1}to{opacity:0}}
 
 /* ══ MILESTONE ══ */
+.ms-ic{width:.9em;height:.9em;margin:0 auto .06em;}
+.ms-ic svg{display:block;width:100%;height:100%;}
 .ms-label{position:fixed;left:50%;top:42%;z-index:212;font-family:var(--disp);
   font-size:clamp(58px,19vw,112px);color:#fff;text-align:center;line-height:1.06;
   will-change:transform,opacity;pointer-events:none;}
@@ -367,7 +372,8 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
   24%{transform:translate(-50%,-50%) scale(1)}
   82%{opacity:1;transform:translate(-50%,-50%) scale(1)}
   100%{opacity:0;transform:translate(-50%,-50%) scale(.9)}}
-#toast .ti{font-size:44px;line-height:1;}
+#toast .ti{width:48px;height:48px;margin:0 auto;line-height:0;}
+#toast .ti svg{display:block;width:100%;height:100%;}
 #toast .tt{font-family:var(--disp);font-size:27px;color:var(--gold);line-height:1;margin-top:6px;
   text-shadow:0 0 22px rgba(255,213,74,.75);}
 #toast .ts{font-family:var(--hud);font-weight:600;font-size:13px;
@@ -484,11 +490,11 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
 </section>
 
 <div id="cel"><div class="cel-in">
-  <div id="cel-obj">🌟</div><div id="cel-praise">Amazing!</div>
+  <div id="cel-obj"></div><div id="cel-praise">Amazing!</div>
   <div id="cel-extra">That's RED!</div><div id="cel-hint">Tap to keep going</div>
 </div></div>
 
-<div id="toast"><div class="ti">🚀</div><div class="tt">Level Up!</div><div class="ts" id="toast-sub">Getting harder</div></div>
+<div id="toast"><div class="ti" id="toast-ic"></div><div class="tt">Level Up!</div><div class="ts" id="toast-sub">Getting harder</div></div>
 
 <script>
 (function(){
@@ -587,8 +593,7 @@ const ART=(function(){
       +sh(36,34,13,7,.42),
     flower:(f,D,sh)=>'<g fill="'+f+'">'
       +[0,60,120,180,240,300].map(a=>'<ellipse cx="50" cy="24" rx="15" ry="20" transform="rotate('+a+' 50 50)"/>').join('')
-      +'</g><circle cx="50" cy="50" r="15" fill="'+D(1)+'"/>'
-      +'<circle cx="50" cy="50" r="7" fill="'+D(2)+'" opacity=".5"/>'+sh(43,20,8,5,.5),
+      +'</g><circle cx="50" cy="50" r="14" fill="'+D(1)+'"/>'+sh(43,20,8,5,.5),
     butterfly:(f,D,sh)=>'<g stroke="'+f+'" stroke-width="4" fill="none" stroke-linecap="round">'
       +'<path d="M47 34c-3-9-8-13-14-13M53 34c3-9 8-13 14-13"/></g>'
       +'<g fill="'+f+'">'
@@ -607,6 +612,24 @@ const ART=(function(){
       +'<ellipse cx="50" cy="42" rx="30" ry="36" fill="'+f+'"/>'+sh(38,26,12,8,.5),
     drop:(f,D,sh)=>'<path d="M50 8c14 20 26 32 26 46a26 26 0 1 1-52 0C24 40 36 28 50 8Z" fill="'+f+'"/>'
       +sh(40,42,10,7,.5),
+    spark:(f,D,sh)=>'<path d="M50 1c4 28 20 44 48 49-28 5-44 21-48 49-4-28-20-44-48-49 28-5 44-21 48-49Z" fill="'+f+'"/>'
+      +'<circle cx="50" cy="50" r="9" fill="#fff" opacity=".85"/>',
+    bubble:(f,D,sh)=>'<circle cx="50" cy="50" r="40" fill="'+f+'" opacity=".42"/>'
+      +'<circle cx="50" cy="50" r="40" fill="none" stroke="'+f+'" stroke-width="6"/>'
+      +'<ellipse cx="35" cy="33" rx="13" ry="9" fill="#fff" opacity=".9" transform="rotate(-30 35 33)"/>',
+    ring:(f,D,sh)=>'<circle cx="50" cy="50" r="34" fill="none" stroke="'+f+'" stroke-width="15"/>'
+      +'<path d="M26 26a34 34 0 0 1 20-10" stroke="#fff" stroke-width="7" fill="none" stroke-linecap="round" opacity=".8"/>',
+    gem:(f,D,sh)=>'<path d="M28 10h44l22 28-44 54L6 38Z" fill="'+f+'"/>'
+      +'<g fill="#fff" opacity=".38"><path d="M28 10h22L38 38H6Z"/><path d="M50 38h44L50 92Z"/></g>'
+      +'<g stroke="'+D(3)+'" stroke-width="3" fill="none" opacity=".55">'
+      +'<path d="M6 38h88M28 10 38 38l12 54M72 10 62 38 50 92"/></g>',
+    crown:(f,D,sh)=>'<path d="M8 72 16 24l18 20L50 12l16 32 18-20 8 48Z" fill="'+f+'"/>'
+      +'<rect x="8" y="70" width="84" height="18" rx="7" fill="'+D(2)+'"/>'
+      +'<g fill="#fff" opacity=".9"><circle cx="16" cy="22" r="6"/><circle cx="50" cy="10" r="7"/>'
+      +'<circle cx="84" cy="22" r="6"/></g>'+sh(34,46,12,6,.4),
+    pearl:(f,D,sh)=>'<circle cx="50" cy="50" r="42" fill="'+f+'"/>'
+      +'<circle cx="50" cy="50" r="42" fill="none" stroke="#fff" stroke-width="3" opacity=".7"/>'
+      +sh(36,34,15,10,.95),
   };
   const KEYS=Object.keys(S);
 
@@ -932,8 +955,23 @@ function echo(c){
 
 /* ═══════════ FREE PLAY DATA ═══════════ */
 const WORDS=['Mama','Papa','Rui','Roxy','Rio','Kitty','Fishy','Splash','Bubble','Hi!','Hey!','Wow!'];
-const EMOJIS=['✨','💥','⭐','🌟','🎉','🌈','💫','🎊','🐠','🐟','🐚','🌊','💧'];
-const TREASURE=['🎁','💎','👑','🐚','⭐','🌟','🦄','🎠','🌈','🍭'];
+// Burst confetti, drawn rather than typed. Each entry is an icon key plus the
+// colour it flies in; shapes stay bold and simple so they read at 30px in motion.
+const POP_BITS=[
+  {i:'spark',c:'#fff3a8'},{i:'spark',c:'#c4f6ff'},{i:'star',c:'#ffd23f'},
+  {i:'bubble',c:'#8fe4ff'},{i:'drop',c:'#59c8ff'},{i:'heart',c:'#ff5f9e'},
+  {i:'shell',c:'#ff9ec4'},{i:'fish',c:'#3fa9f5'},{i:'starfish',c:'#ffb03f'},
+  {i:'flower',c:'#ff6fa8'},{i:'ring',c:'#2ce0a4'},{i:'butterfly',c:'#b07cff'},
+];
+const TREASURE_BITS=[
+  {i:'gem',c:'#5fe0ff'},{i:'gem',c:'#ff6fc4'},{i:'gem',c:'#9d7bff'},
+  {i:'crown',c:'#ffd23f'},{i:'pearl',c:'#f4fbff'},{i:'star',c:'#ffe066'},
+  {i:'shell',c:'#ffb8d8'},{i:'ring',c:'#ffd23f'},{i:'spark',c:'#fff3a8'},
+];
+const WATER_BITS=[
+  {i:'drop',c:'#7fd8ff'},{i:'drop',c:'#bfeeff'},{i:'bubble',c:'#9fe8ff'},
+  {i:'spark',c:'#e8fbff'},{i:'ring',c:'#6fd0ff'},
+];
 const CREATURES=[
   {icon:'turtle', c:'#3fbf6f', call:'HELLO!'},
   {icon:'crab',   c:'#ff5a4e', call:'SNIP SNIP!'},
@@ -988,8 +1026,9 @@ function makeBubble(cx,cy,opt){
     const q=document.createElement('div'); q.className='qmark'; q.textContent='?';
     q.style.fontSize=Math.round(size*.44)+'px'; el.appendChild(q);
   }else if(kind==='pearl'){
-    const s=document.createElement('div'); s.className='face'; s.textContent='⭐';
-    s.style.fontSize=Math.round(size*.34)+'px';
+    const s=document.createElement('div'); s.className='face';
+    s.innerHTML=ART.icon('star','#ffd23f');
+    s.style.width=s.style.height=Math.round(size*.4)+'px';
     s.style.filter='drop-shadow(0 0 12px rgba(255,225,120,.95))'; el.appendChild(s);
   }else if(Math.random()<.3){
     const f=document.createElement('div'); f.className='face';
@@ -1039,14 +1078,14 @@ function makeBubble(cx,cy,opt){
       echo(this.kind==='mystery'?'#ff6ae0':this.tint.rim);
       bumpPop();
       if(this.kind==='mystery'){
-        burst(x,y,20,TREASURE,{spread:230,size:'clamp(30px,8.5vw,54px)'});
+        burst(x,y,20,TREASURE_BITS,{spread:230,size:'clamp(30px,8.5vw,54px)'});
         arp([392,523,659,784,1047,1319],.075,.2);
         for(let i=0;i<8;i++)setTimeout(()=>makeBubble(x+rand(-140,140),y+rand(-140,140)),i*70);
       }else if(this.kind==='pearl'){
-        burst(x,y,22,EMOJIS,{spread:250,size:'clamp(30px,9vw,56px)'});
+        burst(x,y,22,POP_BITS,{spread:250,size:'clamp(30px,9vw,56px)'});
         chord([262,330,392,523,659],1.2,.15);
       }else{
-        burst(x,y,12,EMOJIS,{spread:170});
+        burst(x,y,12,POP_BITS,{spread:170});
         chainFrom(x,y); combo(x,y);
       }
     }
@@ -1078,8 +1117,10 @@ function burst(cx,cy,n,set,opt){
   const host=SCREEN==='play'?stage:fxLayer;
   for(let i=0;i<n;i++){
     const a=(i/n)*6.283+rand(-.4,.4), d=spread*rand(.45,1);
-    const el=document.createElement('div'); el.className='pcl'; el.textContent=pick(set);
-    el.style.fontSize=opt.size||'clamp(22px,6.4vw,44px)';
+    const bit=pick(set);
+    const el=document.createElement('div'); el.className='pcl';
+    el.innerHTML=ART.icon(bit.i,bit.c);
+    el.style.width=el.style.height=opt.size||'clamp(22px,6.4vw,44px)';
     const r=rand(-620,620);
     el.style.setProperty('--x0',cx+'px'); el.style.setProperty('--y0',cy+'px');
     el.style.setProperty('--x1',(cx+Math.cos(a)*d)+'px');
@@ -1106,7 +1147,8 @@ function sayWord(x,y){
     ?'0 0 26px #ffd54a,0 0 60px rgba(255,160,0,.65),0 0 110px rgba(255,110,0,.3),0 3px 0 rgba(0,20,30,.5)'
     :'0 0 16px '+col+',0 0 38px '+col+'99,0 0 72px '+col+'3a,0 2px 0 rgba(0,20,30,.45)';
   el.style.animation='wordIn .36s cubic-bezier(.34,1.56,.64,1) forwards';
-  if(isRui){const c=document.createElement('span');c.className='crown';c.textContent='👑';el.appendChild(c);}
+  if(isRui){const c=document.createElement('span');c.className='crown';
+    c.innerHTML=ART.icon('crown','#ffd23f');el.appendChild(c);}
   stage.appendChild(el); sWord();
   const n=isRui?6:2, sp=isRui?130:82;
   for(let i=0;i<n;i++)makeBubble(x+rand(-sp,sp),y+rand(-sp,sp));
@@ -1133,12 +1175,14 @@ function combo(x,y){
     el.style.textShadow='0 0 20px '+col+',0 0 52px '+col+'99,0 3px 0 rgba(0,20,30,.5)';
     el.style.animation='comboOut 1.35s cubic-bezier(.34,1.3,.64,1) forwards';
     document.body.appendChild(el);
-    burst(x,y,10,EMOJIS,{spread:190});
+    burst(x,y,10,POP_BITS,{spread:190});
     setTimeout(()=>el.parentNode&&el.parentNode.removeChild(el),1420);
   }
 }
 
-const MS_ICON={10:'🐚',25:'⭐',50:'🐠',100:'🌊',200:'🐳',350:'💎',500:'👑'};
+const MS_ICON={10:{i:'shell',c:'#ff9ec4'},25:{i:'star',c:'#ffd23f'},
+  50:{i:'fish',c:'#3fa9f5'},100:{i:'drop',c:'#59c8ff'},200:{i:'whale',c:'#5a86dc'},
+  350:{i:'gem',c:'#5fe0ff'},500:{i:'crown',c:'#ffd23f'}};
 const MS_RGB={10:'255,205,120',25:'120,230,255',50:'255,120,200',100:'110,255,215',
   200:'255,150,90',350:'180,150,255',500:'255,225,110'};
 function confettiRain(n){
@@ -1169,7 +1213,8 @@ function milestone(s){
     setTimeout(()=>r.parentNode&&r.parentNode.removeChild(r),1100);
   }
   const l=document.createElement('div'); l.className='ms-label';
-  l.innerHTML='<div style="font-size:.78em">'+(MS_ICON[s]||'⭐')+'</div>'+s+'!';
+  const mi=MS_ICON[s]||{i:'star',c:'#ffd23f'};
+  l.innerHTML='<div class="ms-ic">'+ART.icon(mi.i,mi.c)+'</div>'+s+'!';
   l.style.textShadow='0 0 38px rgba('+rgb+',1),0 0 82px rgba('+rgb+',.55),0 4px 14px rgba(0,15,30,.7)';
   l.style.animation='msPop 1.6s cubic-bezier(.34,1.3,.64,1) forwards';
   document.body.appendChild(l);
@@ -1208,7 +1253,7 @@ function mCreature(){
   const tap=e=>{
     e.stopPropagation();
     const r=el.getBoundingClientRect(), x=r.left+r.width/2, y=r.top+r.height/2;
-    burst(x,y,13,EMOJIS,{spread:180,size:'clamp(30px,8vw,52px)'});
+    burst(x,y,13,POP_BITS,{spread:180,size:'clamp(30px,8vw,52px)'});
     shout(x,y-58,c.call);
     el.style.transition='transform .18s cubic-bezier(.34,1.56,.64,1)';
     const cur=el.style.transform||'';
@@ -1241,7 +1286,7 @@ function mShoal(){
     const tap=e=>{
       e.stopPropagation();
       const r=el.getBoundingClientRect();
-      burst(r.left+r.width/2,r.top+r.height/2,7,['💧','✨','🫧'],{spread:120});
+      burst(r.left+r.width/2,r.top+r.height/2,7,WATER_BITS,{spread:120});
       sBlub(); kill(ent);
     };
     el.addEventListener('touchstart',tap,{passive:false});
@@ -1272,7 +1317,7 @@ function mWhale(){
   const tap=e=>{
     e.stopPropagation();
     const r=el.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
-    burst(cx,cy,16,['💧','🌊','✨','💦'],{spread:230,size:'clamp(30px,8vw,54px)'});
+    burst(cx,cy,16,WATER_BITS,{spread:230,size:'clamp(30px,8vw,54px)'});
     shout(cx,cy-70,'WHOOSH!'); chord([196,262,330,392],1.1,.14);
   };
   el.addEventListener('touchstart',tap,{passive:false});
@@ -1359,7 +1404,7 @@ function mJelly(){
   const tap=e=>{
     e.stopPropagation();
     const r=el.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top+r.height/2;
-    burst(cx,cy,12,['✨','💫','💧'],{spread:170});
+    burst(cx,cy,12,WATER_BITS,{spread:170});
     tone({type:'sine',f0:900,f1:280,dur:.5,vol:.16});
     el.style.animation='jellyFlee .45s ease-in forwards';
     setTimeout(()=>{jelly=null;kill(ent);},460);
@@ -1372,10 +1417,14 @@ function mRui(){
   const el=document.createElement('div'); el.className='ruiname';
   const cx=rand(W*.24,W*.76), cy=rand(H*.2,H*.58);
   el.style.transform='translate3d('+cx+'px,'+cy+'px,0) translateX(-50%)';
-  ['R','U','I','⭐'].forEach((ch,i)=>{
-    const s=document.createElement('span'); s.textContent=ch;
+  ['R','U','I','*'].forEach((ch,i)=>{
+    const s=document.createElement('span');
     const col=['#ffe066','#ffd23f','#fff0a8','#ffe74d'][i%4];
-    s.style.cssText='color:'+col+';text-shadow:0 0 15px '+col+',0 0 36px '+col+'aa,0 0 66px '+col+'55;'
+    if(ch==='*'){ s.innerHTML=ART.icon('star',col);
+      s.style.cssText='display:inline-block;width:.82em;height:.82em;vertical-align:-.06em;'
+        +'filter:drop-shadow(0 0 14px '+col+');'; }
+    else s.textContent=ch;
+    s.style.cssText+='color:'+col+';text-shadow:0 0 15px '+col+',0 0 36px '+col+'aa,0 0 66px '+col+'55;'
       +'animation:ruiIn .5s cubic-bezier(.34,1.56,.64,1) '+(i*.14)+'s forwards,'
       +'ruiBob 2.7s ease-in-out '+(i*.14+.5)+'s infinite;';
     el.appendChild(s);
@@ -1593,14 +1642,14 @@ const COLOR_ICONS=['fish','whale','turtle','crab','octopus','jelly','starfish',
   'shell','flower','butterfly','heart','star','drop','balloon'];
 const SHAPE_FILLS=['#FF3B3B','#3580FF','#FFD000','#2EBD6E','#FF8B00','#9B59B6','#FF69B4'];
 const SHAPES=[
-  {id:'circle',   label:'CIRCLE',   art:'a', ce:'⭕'},
-  {id:'square',   label:'SQUARE',   art:'a', ce:'🟥'},
-  {id:'triangle', label:'TRIANGLE', art:'a', ce:'🔺'},
-  {id:'star',     label:'STAR',     art:'a', ce:'⭐'},
-  {id:'heart',    label:'HEART',    art:'a', ce:'❤️'},
-  {id:'oval',     label:'OVAL',     art:'an',ce:'🥚'},
-  {id:'diamond',  label:'DIAMOND',  art:'a', ce:'💠'},
-  {id:'rectangle',label:'RECTANGLE',art:'a', ce:'📐'},
+  {id:'circle',   label:'CIRCLE',   art:'a'},
+  {id:'square',   label:'SQUARE',   art:'a'},
+  {id:'triangle', label:'TRIANGLE', art:'a'},
+  {id:'star',     label:'STAR',     art:'a'},
+  {id:'heart',    label:'HEART',    art:'a'},
+  {id:'oval',     label:'OVAL',     art:'an'},
+  {id:'diamond',  label:'DIAMOND',  art:'a'},
+  {id:'rectangle',label:'RECTANGLE',art:'a'},
 ];
 function shapeSVG(id,fill){
   const g='sg'+(Math.random()*1e6|0);
@@ -1752,7 +1801,7 @@ function quizTap(i,orb){
       if(G[k]<5){G[k]++; G.leveled=true;}
     }
     const r=orb.getBoundingClientRect();
-    burst(r.left+r.width/2,r.top+r.height/2,14,EMOJIS,{spread:200});
+    burst(r.left+r.width/2,r.top+r.height/2,14,POP_BITS,{spread:200});
     G.preT=setTimeout(celebrate,340);
   }else{
     G.streak=0;
@@ -1801,7 +1850,7 @@ function countTap(i,el,tint){
   const bb=el.getBoundingClientRect();
   el.classList.add('gone');
   sPop(bb.left+bb.width/2,bb.width);
-  burst(bb.left+bb.width/2,bb.top+bb.height/2,9,EMOJIS,{spread:130});
+  burst(bb.left+bb.width/2,bb.top+bb.height/2,9,POP_BITS,{spread:130});
   echo(tint.rim);
   const now=$('c-now'); now.textContent=r.got;
   now.classList.remove('pop'); void now.offsetWidth; now.classList.add('pop');
@@ -1870,6 +1919,7 @@ function showToast(cb,gen){
   const t=$('toast');
   const n=G.mode==='color'?G.colorN:G.shapeN;
   $('toast-sub').textContent=['','','Two choices','Three choices','Four choices','Five choices — top level!'][n]||'Getting harder';
+  $('toast-ic').innerHTML=ART.icon('star','#ffd23f');
   t.classList.remove('on'); void t.offsetWidth; t.classList.add('on');
   sLevel();
   G.toastT=setTimeout(()=>{t.classList.remove('on'); cb();},1750);

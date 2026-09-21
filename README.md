@@ -15,7 +15,7 @@ open reef, or drop into short guided games for colors, shapes, and counting.
 
 - Multi-touch bubble spawning — four fingers, four bubbles
 - Animated water canvas with kelp, light shafts, and drifting swimmers
-- Hand-drawn SVG icon set (no emoji on any tappable surface)
+- Hand-drawn SVG icon set — no emoji anywhere in the app
 - Mute toggle on every screen, remembered per device
 - Milestone and celebration moments between rounds
 - Pop counter and per-game score
@@ -32,9 +32,24 @@ detail (turtle plates, shell ridges, a flower's centre) goes through `D()`, whic
 returns a shade of the body when tinted and a translucent ink when flat — without
 that, white-on-white detail disappears.
 
-Adding an icon means adding one entry to `S` in that module and listing its key in
-`COLOR_ICONS`, `COUNTABLES` or `CREATURES`. Emoji remain only in the decorative
-particle bursts and confetti, where they read fine in motion at small size.
+The confetti that flies out of a popped bubble is drawn from the same set.
+`POP_BITS`, `TREASURE_BITS` and `WATER_BITS` each pair an icon key with the colour
+it flies in; those shapes stay bold and simple so they still read at 30px in
+motion. Milestone badges, the level-up toast, the pearl bubble's star and the RUI
+crown come from the set too.
+
+Adding an icon means adding one entry to `S` in that module and listing its key
+wherever it should appear: `COLOR_ICONS`, `COUNTABLES`, `CREATURES`, `POP_BITS`,
+`TREASURE_BITS`, `WATER_BITS` or `MS_ICON`.
+
+## App icon
+
+`icon-192.png` and `icon-512.png` are generated from a single square source. The
+source artwork arrived with its rounded corners baked in as opaque black, which
+would have shown as black wedges under the squircle mask iOS applies to home
+screen icons. Both files are cropped 85px in from each edge of the 1254px
+original, which clears the mask entirely and leaves the artwork full-bleed. If
+you replace the icon, check the four corners are artwork and not black.
 
 ## Hosting
 
@@ -60,6 +75,6 @@ Launches fullscreen with no browser UI.
 
 ## Shipping an update
 
-Bump `CACHE` in `sw.js` (currently `ruis-reef-v8`) whenever `index.html` changes.
+Bump `CACHE` in `sw.js` (currently `ruis-reef-v9`) whenever `index.html` changes.
 The service worker is network-first, but the version bump is what clears stale
 caches for anyone who already installed the app.
