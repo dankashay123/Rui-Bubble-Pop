@@ -148,11 +148,11 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
 /* ══ ORB GRID ══ */
 .orbs{flex:1;display:flex;flex-wrap:wrap;align-content:center;align-items:center;
   justify-content:center;gap:14px;min-height:0;}
-.orb{position:relative;flex:none;width:calc(50% - 7px);aspect-ratio:1;max-height:38vh;
+.orb{position:relative;flex:none;width:min(calc(50% - 7px),38vh);aspect-ratio:1;
   border-radius:50%;overflow:hidden;cursor:pointer;
   display:flex;align-items:center;justify-content:center;
   opacity:0;transform:scale(.4);}
-.orbs.n3 .orb,.orbs.n5 .orb{width:calc(33.333% - 10px);max-height:26vh;}
+.orbs.n3 .orb,.orbs.n5 .orb{width:min(calc(33.333% - 10px),26vh);}
 .orb.in{animation:orbIn .42s cubic-bezier(.34,1.56,.64,1) forwards;}
 @keyframes orbIn{to{opacity:1;transform:scale(1)}}
 .orb .gloss{position:absolute;top:8%;left:12%;width:42%;height:30%;border-radius:50%;
@@ -173,6 +173,42 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
 @keyframes orbNo{0%,100%{transform:translateX(0)}
   18%{transform:translateX(-11px) rotate(-4deg)}38%{transform:translateX(9px) rotate(3deg)}
   60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
+
+@media (orientation:landscape) and (max-height:560px){
+  .wrap{max-width:760px;padding-top:calc(env(safe-area-inset-top,0px) + 6px);
+    padding-bottom:calc(env(safe-area-inset-bottom,0px) + 6px);}
+  .bar{margin-bottom:4px;}
+  .back,.mute{width:38px;height:38px;}
+  .tally{padding:5px 12px 5px 9px;}
+  .tally .nb{font-size:18px;}
+  .ask{margin-bottom:6px;}
+  .ask .eye{display:none;}
+  .ask .l1{font-size:clamp(15px,4.4vh,20px);}
+  .ask .l2{font-size:clamp(22px,8vh,36px);}
+  /* Wrapping to a second row never fits a short viewport, so every count
+     gets its own single-row width and the height cap keeps it on screen. */
+  .orbs{flex-wrap:nowrap;}
+  .orbs.n2 .orb{width:min(calc(50% - 6px),58vh);}
+  .orbs.n3 .orb{width:min(calc(33.333% - 8px),58vh);}
+  .orbs.n4 .orb{width:min(calc(25% - 9px),58vh);}
+  .orbs.n5 .orb{width:min(calc(20% - 10px),58vh);}
+  .orbs.n3 .orb .em,.orbs.n5 .orb .em{font-size:min(9vh,44px);}
+  .orbs,.cgrid{gap:10px;}
+  .cnum{margin-bottom:4px;}
+  .cnum .now{font-size:clamp(30px,11vh,52px);}
+  .cnum .of{font-size:clamp(16px,5vh,24px);}
+  .cnum .tot{font-size:clamp(20px,7vh,32px);}
+  #hub .wrap{gap:8px;}
+  .hub-title{margin-bottom:0;}
+  .hub-title .t1{font-size:clamp(24px,9vh,40px);}
+  .hub-title .t2{display:none;}
+  .tiles{grid-template-columns:repeat(4,1fr);gap:9px;}
+  .tile{padding:9px 8px 8px;gap:4px;}
+  .tile .ic{font-size:clamp(26px,9vh,38px);}
+  .tile .sb{display:none;}
+  #cel-obj{width:clamp(70px,22vh,110px);height:clamp(70px,22vh,110px);}
+  #cel-praise{font-size:clamp(28px,10vh,48px);}
+}
 
 /* ══ COUNT ══ */
 .cnum{text-align:center;flex:none;margin-bottom:12px;
@@ -263,7 +299,10 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
 @keyframes crownIn{from{opacity:0;transform:translateX(-50%) translateY(14px) scale(0)}
   to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
 .pcl{position:absolute;top:0;left:0;line-height:0;z-index:36;
-  filter:drop-shadow(0 2px 5px rgba(0,0,0,.35));}
+  /* No drop-shadow here: a CSS filter on ~100 simultaneously animating particles
+     repaints every frame and halves the frame rate. The shapes are saturated
+     against dark water and read fine without one. */
+  will-change:transform,opacity;}
 .pcl svg{display:block;width:100%;height:100%;}
 @keyframes pclOut{
   0%{opacity:1;transform:translate3d(var(--x0),var(--y0),0) scale(.35) rotate(0)}
@@ -272,13 +311,6 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
   100%{opacity:0;transform:translate3d(var(--x1),calc(var(--y1) - 54px),0) scale(.35) rotate(var(--r3))}}
 .trail{position:fixed;border-radius:50%;z-index:8;pointer-events:none;}
 @keyframes trailOut{from{opacity:.85;transform:scale(1)}to{opacity:0;transform:scale(.1)}}
-.combo{position:fixed;top:0;left:0;z-index:220;font-family:var(--disp);line-height:1;
-  white-space:nowrap;will-change:transform,opacity;pointer-events:none;}
-@keyframes comboOut{
-  0%{opacity:0;transform:var(--tf) scale(0) rotate(-10deg)}
-  26%{opacity:1;transform:var(--tf) scale(1.3) rotate(4deg)}
-  58%{transform:var(--tf) scale(.92) rotate(-2deg)}
-  100%{opacity:0;transform:var(--tf) translateY(-40px) scale(1.05)}}
 
 /* ══ CREATURES / SWIMMERS ══ */
 .creature{position:fixed;line-height:1;z-index:52;pointer-events:all;cursor:pointer;
@@ -1161,22 +1193,13 @@ function sayWord(x,y){
 }
 
 let comboN=0,comboT=null;
-const COMBO_WORDS=['NICE!','SUPER!','AMAZING!','WOW WOW WOW!'];
+// A fast run of pops still gets rewarded, with an extra shower of confetti
+// rather than a word flashed across the screen.
 function combo(x,y){
   comboN++; clearTimeout(comboT);
   comboT=setTimeout(()=>comboN=0,1100);
   if(comboN>=4&&comboN%4===0){
-    const i=Math.min((comboN/4|0)-1,COMBO_WORDS.length-1);
-    const col=WORD_TINTS[i%WORD_TINTS.length];
-    const el=document.createElement('div'); el.className='combo';
-    el.textContent=COMBO_WORDS[i]; el.style.color=col;
-    el.style.fontSize='clamp(44px,13vw,84px)';
-    el.style.setProperty('--tf','translate3d('+x+'px,'+(y-56)+'px,0) translate(-50%,-50%)');
-    el.style.textShadow='0 0 20px '+col+',0 0 52px '+col+'99,0 3px 0 rgba(0,20,30,.5)';
-    el.style.animation='comboOut 1.35s cubic-bezier(.34,1.3,.64,1) forwards';
-    document.body.appendChild(el);
-    burst(x,y,10,POP_BITS,{spread:190});
-    setTimeout(()=>el.parentNode&&el.parentNode.removeChild(el),1420);
+    burst(x,y,14,POP_BITS,{spread:210});
   }
 }
 
@@ -1745,7 +1768,7 @@ function renderQuiz(){
   const r=G.cur, grid=$('q-orbs');
   grid.innerHTML='';
   const n=r.items.length;
-  grid.className='orbs'+(n===3?' n3':n===5?' n5':'');
+  grid.className='orbs n'+n;
   const l2=$('q-l2');
   if(r.kind==='color'){
     $('q-eye').textContent='Find the color!';

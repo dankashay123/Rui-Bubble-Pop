@@ -73,8 +73,29 @@ Because the site lives in a subdirectory, `manifest.json` uses
 
 Launches fullscreen with no browser UI.
 
+## Performance notes
+
+Free play holds 60fps with ~200 particles alive. Two things measured as
+load-bearing, so be careful changing them:
+
+- **No CSS `filter` on `.pcl`.** A `drop-shadow` there halved the frame rate
+  (median 16.7ms to 33.3ms, p99 50ms to 100ms) because ~100 simultaneously
+  animating elements repaint every frame. The same filter on 16 swimmers or one
+  whale costs nothing measurable — it is the volume, not the filter, so the
+  creatures keep their shadows.
+- The water canvas repaints at 30Hz on purpose (`PAINT_MS`), and the whole
+  rAF loop idles to ~30Hz when nothing is moving.
+
+## Landscape
+
+A phone held sideways hits `@media (orientation:landscape) and (max-height:560px)`,
+which compresses the header and lays the quiz orbs out in a single row. Orb width
+is `min(<percentage>, <vh>)` rather than a percentage with a `max-height`, because
+`max-height` overrides `aspect-ratio` and renders the orbs as ellipses whenever
+height is the tighter axis.
+
 ## Shipping an update
 
-Bump `CACHE` in `sw.js` (currently `ruis-reef-v9`) whenever `index.html` changes.
+Bump `CACHE` in `sw.js` (currently `ruis-reef-v10`) whenever `index.html` changes.
 The service worker is network-first, but the version bump is what clears stale
 caches for anyone who already installed the app.
