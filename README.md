@@ -45,6 +45,6 @@ Launches fullscreen with no browser UI.
 
 ## Shipping an update
 
-Bump `CACHE` in `sw.js` (currently `ruis-reef-v6`) whenever `index.html` changes.
+Bump `CACHE` in `sw.js` (currently `ruis-reef-v7`) whenever `index.html` changes.
 The service worker is network-first, but the version bump is what clears stale
 caches for anyone who already installed the app.

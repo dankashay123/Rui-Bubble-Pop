@@ -19,8 +19,8 @@
   --abyss:#010a1c; --deep:#052b4d; --mid:#0a5878; --shallow:#118a9c; --surface:#3fd4d0;
   --sun:#ffeeb0; --coral:#ff6b8a; --gold:#ffd54a; --pearl:#f2f9ff;
   --ink:#eaffff;
-  --disp:'Bubblegum Sans',cursive;
-  --hud:'Baloo 2',system-ui,-apple-system,sans-serif;
+  --disp:'Bubblegum Sans','Baloo 2','Trebuchet MS',system-ui,-apple-system,sans-serif;
+  --hud:'Baloo 2','Trebuchet MS',system-ui,-apple-system,sans-serif;
   --r:26px;
 }
 *,*::before,*::after{
@@ -46,8 +46,16 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
 .kelp.front{z-index:30;filter:blur(2px);opacity:.42;}
 @keyframes sway{0%{transform:rotate(-3.5deg)}50%{transform:rotate(3.5deg)}100%{transform:rotate(-3.5deg)}}
 #stage{position:fixed;inset:0;z-index:10;pointer-events:none;}
+/* Free-play bursts belong in #stage, behind the kelp and creatures. Rewards on the
+   quiz/count screens must clear those screens (z-70), so they go here instead. */
+#fx{position:fixed;inset:0;z-index:245;pointer-events:none;}
 #flash{position:fixed;inset:0;z-index:190;opacity:0;pointer-events:none;}
 @keyframes flashOut{0%{opacity:0}10%{opacity:1}100%{opacity:0}}
+
+@media (prefers-reduced-motion:reduce){
+  #surface-band,.kelp,#jbell{animation:none!important;}
+  .bubble .film{animation:none!important;}
+}
 
 /* ══ SCREENS ══ */
 .screen{position:fixed;inset:0;z-index:70;display:flex;flex-direction:column;
@@ -144,11 +152,11 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
 .orbs.n3 .orb .em,.orbs.n5 .orb .em{font-size:min(12vw,52px);}
 .orb .sh{width:66%;height:66%;pointer-events:none;
   filter:drop-shadow(0 4px 12px rgba(0,0,0,.32));}
-.orb.yes{animation:orbYes .5s ease forwards;}
+.orb.yes{opacity:1;animation:orbYes .5s ease forwards;}
 @keyframes orbYes{
   0%{transform:scale(1)}35%{transform:scale(1.2)}
   100%{transform:scale(1.1);box-shadow:0 0 0 6px #fff,0 0 44px 12px rgba(255,255,255,.7)}}
-.orb.no{animation:orbNo .42s ease;}
+.orb.no{opacity:1;transform:scale(1);animation:orbNo .42s ease;}
 @keyframes orbNo{0%,100%{transform:translateX(0)}
   18%{transform:translateX(-11px) rotate(-4deg)}38%{transform:translateX(9px) rotate(3deg)}
   60%{transform:translateX(-6px)}80%{transform:translateX(4px)}}
@@ -360,6 +368,7 @@ html,body{width:100%;height:100%;overflow:hidden;position:fixed;top:0;left:0;
 <div id="echo"></div>
 <div id="flash"></div>
 <div id="stage"></div>
+<div id="fx"></div>
 
 <!-- ══ HUB ══ -->
 <section class="screen" id="hub"><div class="wrap">
@@ -473,7 +482,7 @@ const shuffle=a=>{const r=[...a];for(let i=r.length-1;i>0;i--){const j=(Math.ran
 const $=id=>document.getElementById(id);
 
 let SCREEN='hub';
-const stage=$('stage'), echoEl=$('echo');
+const stage=$('stage'), fxLayer=$('fx'), echoEl=$('echo');
 
 /* ═══════════ ENGINE ═══════════ */
 const ENT=new Set();
@@ -526,7 +535,19 @@ document.addEventListener('visibilitychange',()=>{
     if(AC&&AC.state==='suspended')AC.resume().catch(()=>{});
   }
 });
-addEventListener('resize',()=>{W=innerWidth;H=innerHeight;sizeWater();});
+// iOS fires resize continuously while the URL bar slides; rebuilding the whole
+// water sim on every one of those makes the rays and motes visibly jump.
+let rzT=null;
+addEventListener('resize',()=>{
+  clearTimeout(rzT);
+  rzT=setTimeout(()=>{
+    const dw=Math.abs(innerWidth-W), dh=Math.abs(innerHeight-H);
+    if(!dw&&!dh)return;
+    W=innerWidth; H=innerHeight;
+    // Small height-only changes (URL bar) just need the canvas resized, not new rays.
+    sizeWater(dw>0||dh>140);
+  },180);
+});
 
 /* ═══════════ AUDIO ═══════════ */
 let AC=null,master=null,muffle=null;
@@ -628,7 +649,8 @@ function buildFloor(){
   for(let x=0;x<=W;x+=18)c.lineTo(x,fy+Math.sin(x*.0062+1.2)*16+Math.sin(x*.0175)*7);
   c.lineTo(W,H); c.lineTo(0,H); c.closePath(); c.fill();
 }
-function sizeWater(){
+function sizeWater(regen){
+  if(regen===undefined)regen=true;
   wc.width=Math.round(W*WSCALE); wc.height=Math.round(H*WSCALE);
   wc.style.width=W+'px'; wc.style.height=H+'px';
   wx.setTransform(WSCALE,0,0,WSCALE,0,0);
@@ -637,6 +659,7 @@ function sizeWater(){
   rayGrad.addColorStop(0,'rgba(255,250,215,.3)');
   rayGrad.addColorStop(.35,'rgba(210,245,255,.14)');
   rayGrad.addColorStop(1,'rgba(190,240,255,0)');
+  if(!regen&&RAYS.length&&MOTES.length)return;
   RAYS=Array.from({length:6},(_,i)=>({x:(i/6)*W+rand(-40,40),w:rand(28,86),
     spread:rand(1.5,3.2),tilt:rand(-.16,.16),speed:rand(.05,.14),
     phase:Math.random()*6.283,alpha:rand(.5,1)}));
@@ -881,6 +904,9 @@ function chainFrom(x,y){
 function burst(cx,cy,n,set,opt){
   opt=opt||{};
   const spread=opt.spread||170;
+  // On the quiz/count screens the reward fires right under the orb the child just
+  // tapped, and #stage sits below those screens — it would be hidden. Use #fx there.
+  const host=SCREEN==='play'?stage:fxLayer;
   for(let i=0;i<n;i++){
     const a=(i/n)*6.283+rand(-.4,.4), d=spread*rand(.45,1);
     const el=document.createElement('div'); el.className='pcl'; el.textContent=pick(set);
@@ -893,7 +919,7 @@ function burst(cx,cy,n,set,opt){
     el.style.setProperty('--r3',r+'deg');
     const dur=rand(1.15,1.8);
     el.style.animation='pclOut '+dur+'s cubic-bezier(.15,.85,.35,1) forwards';
-    stage.appendChild(el);
+    host.appendChild(el);
     setTimeout(()=>el.parentNode&&el.parentNode.removeChild(el),dur*1000+80);
   }
 }
@@ -1284,6 +1310,7 @@ function startHold(id,x,y){
   holds.set(id,h);
   startLoop();
 }
+function clearHolds(){ [...holds.keys()].forEach(cancelHold); }
 function cancelHold(id){
   const h=holds.get(id); if(!h)return;
   holds.delete(id); cancelAnimationFrame(h.raf);
@@ -1323,8 +1350,12 @@ document.addEventListener('touchmove',e=>{
   }
 },{passive:false});
 document.addEventListener('touchend',e=>{
-  if(SCREEN!=='play')return;
-  for(const t of e.changedTouches){endHold(t.identifier);swipes.delete(t.identifier);}
+  // Always run cleanup, even after leaving free play: a second finger can hit Back
+  // while the first is still held down, and that hold must not outlive the screen.
+  for(const t of e.changedTouches){
+    if(SCREEN==='play')endHold(t.identifier); else cancelHold(t.identifier);
+    swipes.delete(t.identifier);
+  }
 },{passive:false});
 document.addEventListener('touchcancel',e=>{
   for(const t of e.changedTouches){cancelHold(t.identifier);swipes.delete(t.identifier);}
@@ -1348,7 +1379,12 @@ document.addEventListener('mousemove',e=>{
     sayWord(e.clientX,e.clientY); mTrack={lx:e.clientX,ly:e.clientY};
   }
 });
-document.addEventListener('mouseup',()=>{if(mDown){endHold('m');mDown=false;}});
+document.addEventListener('mouseup',()=>{
+  if(!mDown)return;
+  if(SCREEN==='play')endHold('m'); else cancelHold('m');
+  mDown=false;
+});
+document.addEventListener('mouseleave',()=>{if(mDown){cancelHold('m');mDown=false;}});
 ['gesturestart','gesturechange','gestureend','contextmenu','selectstart','dragstart']
   .forEach(ev=>document.addEventListener(ev,e=>e.preventDefault(),{passive:false}));
 let lastTap=0;
@@ -1357,8 +1393,9 @@ document.addEventListener('touchend',e=>{
 },{passive:false});
 
 let idleT=null,idleLoop=null,idleMade=0;
+function stopIdle(){ clearTimeout(idleT); clearInterval(idleLoop); idleT=idleLoop=null; }
 function wakeIdle(){
-  clearTimeout(idleT); clearInterval(idleLoop); idleMade=0;
+  stopIdle(); idleMade=0;
   idleT=setTimeout(()=>{
     idleLoop=setInterval(()=>{
       if(document.hidden||SCREEN!=='play'||idleMade>=12)return;
@@ -1424,6 +1461,9 @@ const COUNTABLES=[
 const PRAISE=['Amazing!','You Got It!','Wonderful!','Great Job!','So Smart!','Correct!','WOW!!!','Brilliant!'];
 
 const G={
+  // gen is bumped on every screen change; any timer that outlives its generation
+  // (a celebration dismiss the child interrupted with Back) drops its work.
+  gen:0, preT:null, celT:null, nextT:null, toastT:null,
   mode:null, score:0, round:1, locked:false, streak:0, leveled:false,
   colorStart:2, shapeStart:2, countMax:5,
   colorN:2, shapeN:2,
@@ -1534,11 +1574,10 @@ function quizTap(i,orb){
     }
     const r=orb.getBoundingClientRect();
     burst(r.left+r.width/2,r.top+r.height/2,14,EMOJIS,{spread:200});
-    setTimeout(celebrate,340);
+    G.preT=setTimeout(celebrate,340);
   }else{
     G.streak=0;
     orb.classList.remove('no'); void orb.offsetWidth; orb.classList.add('no');
-    orb.addEventListener('animationend',()=>orb.classList.remove('no'),{once:true});
     sNo();
   }
 }
@@ -1592,13 +1631,19 @@ function countTap(i,el,tint){
     now.classList.add('done');
     G.locked=true; G.score++;
     tallyBump('c-score',G.score);
-    setTimeout(celebrate,480);
+    G.preT=setTimeout(celebrate,480);
   }
 }
 
 /* ═══════════ CELEBRATION ═══════════ */
+function clearGameTimers(){
+  clearTimeout(G.preT); clearTimeout(G.celT); clearTimeout(G.nextT); clearTimeout(G.toastT);
+  G.preT=G.celT=G.nextT=G.toastT=null;
+}
 function celebrate(){
   const r=G.cur, cel=$('cel');
+  if(!r)return;
+  const gen=G.gen;
   let obj,extra,hex;
   if(r.kind==='color'){
     obj=r.items[r.correct].emoji; extra="That's "+r.target.label+"!"; hex=r.target.hex;
@@ -1619,41 +1664,47 @@ function celebrate(){
   confettiRain(34);
   sLevel();
   let done=false;
-  const dismiss=()=>{ if(done)return; done=true; cel.removeEventListener('pointerdown',dismiss); closeCel(); };
-  setTimeout(dismiss,2700);
+  const dismiss=()=>{ if(done)return; done=true; cel.removeEventListener('pointerdown',dismiss);
+    if(gen===G.gen)closeCel(gen); };
+  G.celT=setTimeout(dismiss,2700);
   cel.addEventListener('pointerdown',dismiss,{once:true});
 }
-function closeCel(){
+function closeCel(gen){
   $('cel').classList.remove('on');
-  const lv=G.leveled; G.leveled=false;
-  setTimeout(()=>{
+  const lv=G.leveled&&G.mode!=='count'; G.leveled=false;
+  G.nextT=setTimeout(()=>{
+    if(gen!==G.gen)return;
     G.round++; G.locked=false;
     const go=()=>{
+      if(gen!==G.gen)return;
       if(G.mode==='color'){G.cur=newColorRound();renderQuiz();}
       else if(G.mode==='shape'){G.cur=newShapeRound();renderQuiz();}
       else{G.cur=newCountRound();renderCount();}
     };
-    if(lv)showToast(go); else go();
+    if(lv)showToast(go,gen); else go();
   },260);
 }
-function showToast(cb){
+function showToast(cb,gen){
   const t=$('toast');
   const n=G.mode==='color'?G.colorN:G.shapeN;
   $('toast-sub').textContent=['','','Two choices','Three choices','Four choices','Five choices — top level!'][n]||'Getting harder';
   t.classList.remove('on'); void t.offsetWidth; t.classList.add('on');
   sLevel();
-  setTimeout(()=>{t.classList.remove('on'); cb();},1750);
+  G.toastT=setTimeout(()=>{t.classList.remove('on'); cb();},1750);
 }
 
 /* ═══════════ ROUTER ═══════════ */
 function show(id){
+  if(SCREEN==='play'&&id!=='play'){ stopIdle(); clearHolds(); }
+  G.gen++; clearGameTimers();
+  $('cel').classList.remove('on');
+  $('toast').classList.remove('on');
   SCREEN=id;
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('off',s.id!==id));
 }
 function goHome(){
-  $('cel').classList.remove('on');
-  $('toast').classList.remove('on');
   G.locked=false;
+  G.mode=null; G.cur=null;
   show('hub');
 }
 function startQuiz(mode){
@@ -1664,7 +1715,7 @@ function startQuiz(mode){
   renderQuiz(); show('quiz');
 }
 function startCount(){
-  G.mode='count'; G.score=0; G.round=1; G.locked=false;
+  G.mode='count'; G.score=0; G.round=1; G.locked=false; G.streak=0; G.leveled=false;
   G.cur=newCountRound();
   $('c-score').textContent='0';
   renderCount(); show('count');
