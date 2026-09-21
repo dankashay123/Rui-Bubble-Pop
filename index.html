@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" sizes="180x180" href="icon-180.png">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -725,6 +726,7 @@ startLoop();
 // Screen off / app backgrounded / another tab: stop everything and free the audio hardware.
 document.addEventListener('visibilitychange',()=>{
   if(document.hidden){
+    if(popSaveT){clearTimeout(popSaveT);savePops();}
     running=false;
     if(rafId){cancelAnimationFrame(rafId);rafId=null;}
     if(AC&&AC.state==='running')AC.suspend().catch(()=>{});
@@ -1025,12 +1027,23 @@ const TINTS=[
 const WORD_TINTS=['#ff5fbf','#ffb02e','#3fd8ff','#3ff0a8','#c56bff','#ff5a6e','#ffe74d'];
 const SWIPE_GAP=118, MAX_BUBBLES=34;
 const MILESTONES=new Set([10,25,50,100,200,350,500]);
+// Kept across launches: the 500-pop crown is a week of play, not one sitting.
+// Milestones fire on the exact count, so restoring mid-way never replays one.
 let popScore=0, liveBubbles=0;
+try{ popScore=Math.max(0,parseInt(localStorage.getItem('reef-pops'),10)||0); }catch(e){}
+let popSaveT=null;
+function savePops(){
+  popSaveT=null;
+  try{ localStorage.setItem('reef-pops',String(popScore)); }catch(e){}
+}
 const BUBBLES=new Set();
 const countEl=$('hud-count');
 
 function bumpPop(){
   popScore++; countEl.textContent=popScore;
+  // Writing to localStorage is synchronous, so coalesce a fast run of pops
+  // into one write rather than stuttering the animation on every tap.
+  if(!popSaveT)popSaveT=setTimeout(savePops,1200);
   countEl.classList.remove('bump'); void countEl.offsetWidth; countEl.classList.add('bump');
   if(MILESTONES.has(popScore))milestone(popScore);
 }
@@ -1975,7 +1988,7 @@ function startCount(){
   $('c-score').textContent='0';
   renderCount(); show('count');
 }
-function startPlay(){ show('play'); wakeIdle(); }
+function startPlay(){ countEl.textContent=popScore; show('play'); wakeIdle(); }
 
 /* ═══════════ PILLS ═══════════ */
 function buildPills(hostId,vals,get,set){
@@ -2018,6 +2031,16 @@ onTap($('p-back'),goHome);
 <script>
 if('serviceWorker' in navigator){
   addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+  // The worker serves from cache first, so a new build lands one launch later.
+  // When it reports one, swap to it the moment the app is put away — reloading
+  // under a toddler mid-game would be worse than waiting.
+  let pending=false;
+  navigator.serviceWorker.addEventListener('message',e=>{
+    if(e.data&&e.data.type==='update-ready')pending=true;
+  });
+  document.addEventListener('visibilitychange',()=>{
+    if(pending&&document.hidden){ pending=false; location.reload(); }
+  });
 }
 </script>
 </body>

@@ -20,7 +20,8 @@ open reef, or drop into short guided games for colors, shapes, and counting.
 - Milestone and celebration moments between rounds
 - Pop counter and per-game score
 - Full toddler-proofing: no zoom, no scroll, no context menus, no text selection
-- Works offline via service worker
+- Works offline from the first launch, fonts included
+- Pop count carries across launches
 
 ## Artwork
 
@@ -94,8 +95,35 @@ is `min(<percentage>, <vh>)` rather than a percentage with a `max-height`, becau
 `max-height` overrides `aspect-ratio` and renders the orbs as ellipses whenever
 height is the tighter axis.
 
+## Service worker
+
+`sw.js` is stale-while-revalidate: it answers from the cache immediately and
+refreshes behind the response. That matters more than freshness here — a
+network-first worker has to wait out a timeout before it can fall back, so on
+one bar of signal or a captive-portal wifi the app hangs instead of opening.
+
+It precaches the page, the manifest, all three icons, and the Google Fonts
+stylesheet plus the font files that stylesheet names (read back out of the CSS,
+since which files get served depends on the browser asking). Font precaching is
+best effort and never fails the install.
+
+The base path comes from where `sw.js` itself sits, so renaming the repo does
+not break the precache list. `manifest.json`'s `start_url` still needs updating
+by hand.
+
+Serving from cache means a new build lands one launch later. The worker compares
+the freshly fetched page against the cached one and posts `update-ready` when
+they differ; the page takes the update on the next `visibilitychange` to hidden,
+so it never reloads out from under a toddler mid-game.
+
+To test any of this you need HTTP, not `file://`:
+
+```bash
+cp -r . /tmp/serve/Rui-Bubble-Pop && cd /tmp/serve && python3 -m http.server 8731
+# then open http://127.0.0.1:8731/Rui-Bubble-Pop/index.html
+```
+
 ## Shipping an update
 
-Bump `CACHE` in `sw.js` (currently `ruis-reef-v10`) whenever `index.html` changes.
-The service worker is network-first, but the version bump is what clears stale
-caches for anyone who already installed the app.
+Bump `CACHE` in `sw.js` (currently `ruis-reef-v11`) whenever `index.html`
+changes. The bump is what evicts the previous cache on activate.
